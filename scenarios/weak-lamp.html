@@ -99,10 +99,26 @@
       font-weight: bold;
     }
 
+    .top-nav{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:20px;
+    }
+
+    .top-nav button{
+      padding:8px 16px;
+      border-radius:6px;
+      font-size:14px;
+    }
+
   </style>
 </head>
-
 <body>
+
+<div class="top-nav">
+  <button onclick="goHome()">🏠 Αρχική</button>
+  <button onclick="goScenarios()">🔙 Σενάρια</button>
+</div>
 
 <h1>Σενάριο Βλάβης – Αστοχία Λάμπας</h1>
 <p>Η λάμπα ανάβει αχνά ή τρεμοπαίζει. Το κύκλωμα φαίνεται σωστό.</p>
@@ -166,6 +182,15 @@
     // Ρεύμα κανονικό
     ammeter.innerText = "Ρεύμα: 0.8A";
   }
+
+  function goHome(){
+    window.location.href = "../index.html";
+  }
+
+  function goScenarios(){
+    window.location.href = "scenarios.html";
+  }
+
 </script>
 
 </body>
