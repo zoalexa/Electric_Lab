@@ -125,10 +125,26 @@ button {
   border-radius: 6px;
 }
 
+    .top-nav{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:20px;
+    }
+
+    .top-nav button{
+      padding:8px 16px;
+      border-radius:6px;
+      font-size:14px;
+    }
 </style>
 </head>
 
 <body>
+
+<div class="top-nav">
+  <button onclick="goHome()">🏠 Αρχική</button>
+  <button onclick="goScenarios()">🔙 Σενάρια</button>
+</div>
 
 <header>
 <h2>Σενάριο Βλάβης – Πρόβλημα Καλωδίωσης</h2>
@@ -351,6 +367,13 @@ function toggleTheory() {
   box.style.display = box.style.display === "none" ? "block" : "none";
 }
 
+function goHome(){
+  window.location.href = "../index.html";
+}
+
+function goScenarios(){
+  window.location.href = "scenarios.html";
+}
 </script>
 
 </body>
