@@ -159,6 +159,9 @@
 
 <!-- VIEW BUTTON -->
 <div class="view-toggle">
+  <a href="../index.html">
+    <button style="margin-right: 10px; background:#1976d2;">🏠 Αρχική</button>
+  </a>
   <button id="viewBtn">Grid View</button>
 </div>
 
@@ -327,7 +330,7 @@
 
 <script>
   function openScenario(file) {
-    window.open(file, "_blank");
+    window.location.href=file;
   }
 
   const viewBtn = document.getElementById("viewBtn");
