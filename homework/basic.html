@@ -294,7 +294,7 @@ let timerInterval;
 let mode=null;
 let quizQuestions=[];
 let firstRound=true;
-let evaluated = []; // αν έχει ήδη βαθμολογηθεί η ερώτηση
+let evaluated = [];
 
 function shuffleArray(array){
   const arr=[...array];
@@ -342,7 +342,7 @@ function startQuiz(selectedMode){
   currentQuestion=0;
   score=0;
   firstRound=true;
-  timeLeft = 5;
+  timeLeft = 600;
 
 if(mode === "exam"){
   startTimer();
