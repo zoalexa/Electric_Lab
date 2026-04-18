@@ -64,6 +64,8 @@ header{
   border-radius:5px;
 }
 
+.answers input{ margin-right:10px; }
+
 .answers select{
   margin:5px 0 15px 0;
   padding:5px;
@@ -103,6 +105,16 @@ button{
 .navigation button.answered{ background:#2ecc71; }
 .navigation button.skipped{ background:#f39c12; }
 .navigation button.current{ border:2px solid #1976d2; }
+
+.correct{
+  border:2px solid #2ecc71 !important;
+  background:#eafaf1 !important;
+}
+
+.wrong{
+  border:2px solid #e74c3c !important;
+  background:#fdecea !important;
+}
 
 #resultBox{
   display:none;
@@ -145,6 +157,20 @@ button{
 
   <div class="navigation" id="navigation"></div>
 </div>
+
+<button id="finalSubmitBtn" onclick="finalSubmit()" style="
+  margin-top:20px;
+  width:100%;
+  padding:12px;
+  background:#1976d2;
+  color:white;
+  font-size:16px;
+  border:none;
+  border-radius:6px;
+  display:none;
+">
+  🔒 Submit All & Finish
+</button>
 
 <div id="resultBox">
   <h2>Ολοκλήρωση Άσκησης</h2>
@@ -293,15 +319,17 @@ correct:0
 ];
 /* ================= ΜΗΧΑΝΙΣΜΟΣ  ================= */
 
-let currentQuestion=0;
-let answers=[];
-let skipped=[];
-let score=0;
+let currentQuestion = 0;
+let answers = [];
+let skipped = [];
+let score = 0;
 let startTime;
 let timerInterval;
-let mode=null;
-let quizQuestions=[];
-let firstRound=true;
+let mode = null;
+let quizQuestions = [];
+let evaluated = [];
+let reviewMode = false;
+let timeLeft = 600;
 
 function shuffleArray(array){
   const arr=[...array];
@@ -313,19 +341,56 @@ function shuffleArray(array){
 }
 
 function startQuiz(selectedMode){
-  mode=selectedMode;
-  document.getElementById("modeSelection").style.display="none";
-  document.getElementById("quizBox").style.display="block";
 
-  quizQuestions = mode==="exam" ? shuffleArray(questions) : [...questions];
+  mode = selectedMode;
 
-  answers=new Array(quizQuestions.length).fill(null);
-  skipped=new Array(quizQuestions.length).fill(false);
-  currentQuestion=0;
-  score=0;
-  firstRound=true;
+  document.getElementById("modeSelection").style.display = "none";
+  document.getElementById("quizBox").style.display = "block";
 
-  startTimer();
+  if(mode === "exam"){
+
+    document.getElementById("finalSubmitBtn").style.display = "block";
+
+    // shuffle ερωτήσεων + μόνο για mcq shuffle answers
+    quizQuestions = shuffleArray(questions).map(q => {
+
+      if(q.type === "mcq"){
+
+        const answersWithIndex = q.a.map((text, index) => ({
+          text,
+          isCorrect: index === q.correct
+        }));
+
+        const shuffledAnswers = shuffleArray(answersWithIndex);
+
+        return {
+          ...q,
+          a: shuffledAnswers.map(x => x.text),
+          correct: shuffledAnswers.findIndex(x => x.isCorrect)
+        };
+      }
+
+      return {...q};
+    });
+
+    timeLeft = 600;
+    startTimer();
+
+  }else{
+
+    document.getElementById("finalSubmitBtn").style.display = "none";
+    quizQuestions = [...questions];
+    document.getElementById("timer").innerText = "";
+  }
+
+  answers = new Array(quizQuestions.length).fill(null);
+  skipped = new Array(quizQuestions.length).fill(false);
+  evaluated = new Array(quizQuestions.length).fill(false);
+
+  currentQuestion = 0;
+  score = 0;
+  startTime = Date.now();
+
   loadQuestion();
 }
 
@@ -337,10 +402,23 @@ function formatTime(sec){
 }
 
 function startTimer(){
-  startTime=Date.now();
-  timerInterval=setInterval(()=>{
-    const diff=Math.floor((Date.now()-startTime)/1000);
-    document.getElementById("timer").innerText="⏱ "+formatTime(diff);
+  if (timerInterval) clearInterval(timerInterval);
+
+  timerInterval = setInterval(()=>{
+
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+
+    document.getElementById("timer").innerText =
+      `⏱ ${m}:${s < 10 ? "0" + s : s}`;
+
+    timeLeft--;
+
+    if(timeLeft < 0){
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+
   },1000);
 }
 
@@ -398,61 +476,146 @@ function loadQuestion(){
   }
 
   if(q.type==="mcq"){
-    q.a.forEach((opt,i)=>{
-      box.innerHTML+=`
-      <label>
-      <input type="radio" name="answer" value="${i}">
-      ${opt}
-      </label>`;
-    });
-  }
+  q.a.forEach((opt,i)=>{
+
+    const checked = answers[currentQuestion] === i ? "checked" : "";
+    const disabled = (mode === "practice" && answers[currentQuestion] !== null) ? "disabled" : "";
+
+    box.innerHTML+=`
+    <label>
+    <input type="radio" name="answer" value="${i}" ${checked} ${disabled}>
+    ${opt}
+    </label>`;
+  });
+}
 
   updateProgress();
   renderNavigation();
 }
 
 function submitAnswer(){
-  if(answers[currentQuestion]!==null) return;
+  const q = quizQuestions[currentQuestion];
+  let correct = true;
 
-  const q=quizQuestions[currentQuestion];
-  let correct=false;
-
-  if(q.type==="mcq"){
-    const selected=document.querySelector('input[name="answer"]:checked');
-    if(!selected) return alert("Επίλεξε απάντηση!");
-    correct=parseInt(selected.value)===q.correct;
-  }
-
-  if(q.type==="group_tf"){
-    const selects=document.querySelectorAll("select");
-    if([...selects].some(s=>s.value==="")) return alert("Συμπλήρωσε όλα τα πεδία!");
-    correct=[...selects].every((s,i)=>String(q.statements[i][1])===s.value);
-  }
-
-  if(q.type==="fill"){
-    const selects=document.querySelectorAll(".fill-select");
-    if([...selects].some(s=>s.value==="")) return alert("Συμπλήρωσε όλα τα πεδία!");
-    let index=0;
-    correct=true;
-    q.lines.forEach(line=>{
-      line[1].forEach(word=>{
-        if(selects[index].value!==word) correct=false;
-        index++;
-      });
+  // καθάρισμα χρωμάτων (ΜΟΝΟ practice)
+  if(mode === "practice"){
+    document.querySelectorAll("select, label").forEach(el=>{
+      el.classList.remove("correct","wrong");
     });
   }
 
-  if(q.type==="matching"){
+  /* ================= MCQ ================= */
+  if(q.type==="mcq"){
+  const selected=document.querySelector('input[name="answer"]:checked');
+  if(!selected) return alert("Επίλεξε απάντηση!");
+
+  const value = parseInt(selected.value);
+  answers[currentQuestion] = value;
+
+  if(mode === "practice"){
+
+    const labels=document.querySelectorAll(".answers label");
+
+    labels.forEach((lab,i)=>{
+      if(i===q.correct) lab.classList.add("correct");
+
+      if(i===value && i!==q.correct){
+        lab.classList.add("wrong");
+        correct=false;
+      }
+    });
+
+    if(!correct) return;
+  }
+}
+
+  /* ================= TRUE FALSE ================= */
+  if(q.type==="group_tf"){
     const selects=document.querySelectorAll("select");
     if([...selects].some(s=>s.value==="")) return alert("Συμπλήρωσε όλα τα πεδία!");
-    correct=[...selects].every((s,i)=>s.value===q.pairs[i][1]);
+
+    const userAnswers = [...selects].map(s=>s.value);
+    answers[currentQuestion] = userAnswers;
+
+    if(mode === "practice"){
+      selects.forEach((s,i)=>{
+        if(String(q.statements[i][1])===s.value){
+          s.classList.add("correct");
+        }else{
+          s.classList.add("wrong");
+          correct=false;
+        }
+      });
+    }
   }
 
-  answers[currentQuestion]=true;
-  skipped[currentQuestion]=false;
-  if(correct) score++;
+  /* ================= FILL ================= */
+  if(q.type==="fill"){
+    const selects=document.querySelectorAll(".fill-select");
 
-  nextStep();
+    if([...selects].some(s => s.value === "")){
+      alert("Συμπλήρωσε όλα τα πεδία!");
+      return;
+    }
+
+    let index=0;
+    const userAnswers=[];
+
+    q.lines.forEach(line=>{
+      line[1].forEach(word=>{
+        const val = selects[index].value;
+        userAnswers.push(val);
+
+        if(mode === "practice"){
+          if(val===word){
+            selects[index].classList.add("correct");
+          }else{
+            selects[index].classList.add("wrong");
+            correct=false;
+          }
+        }
+
+        index++;
+      });
+    });
+
+    answers[currentQuestion] = userAnswers;
+  }
+
+  /* ================= MATCHING ================= */
+  if(q.type==="matching"){
+    const selects=document.querySelectorAll("select");
+
+    if([...selects].some(s=>s.value==="")) return alert("Συμπλήρωσε όλα τα πεδία!");
+
+    const userAnswers = [...selects].map(s=>s.value);
+    answers[currentQuestion] = userAnswers;
+
+    if(mode === "practice"){
+      selects.forEach((s,i)=>{
+        if(s.value===q.pairs[i][1]){
+          s.classList.add("correct");
+        }else{
+          s.classList.add("wrong");
+          correct=false;
+        }
+      });
+    }
+  }
+
+  /* ================= LOGIC ================= */
+
+  // PRACTICE → δεν προχωράει αν είναι λάθος
+  if(mode === "practice"){
+    if(!correct) return;
+    nextStep();
+    return;
+  }
+
+  // EXAM → ΠΑΝΤΑ προχωράει
+  if(mode === "exam"){
+    nextStep();
+  }
 }
 
 function skipQuestion(){
@@ -462,61 +625,174 @@ function skipQuestion(){
 }
 
 function nextStep(){
-  if(currentQuestion < quizQuestions.length-1){
-    currentQuestion++;
+  const nextUnanswered = answers.findIndex((a,i) => a === null && i > currentQuestion);
+
+  if(nextUnanswered !== -1){
+    currentQuestion = nextUnanswered;
     loadQuestion();
-  }else{
-    if(firstRound){
-      firstRound=false;
-      const firstSkipped=skipped.findIndex((s,i)=>s && answers[i]===null);
-      if(firstSkipped!==-1){
-        currentQuestion=firstSkipped;
-        loadQuestion();
-        return;
-      }
-    }
-    attemptFinish();
+    return;
   }
+
+  const anyUnanswered = answers.findIndex(a => a === null);
+
+  if(anyUnanswered !== -1){
+    currentQuestion = anyUnanswered;
+    loadQuestion();
+    return;
+  }
+
+  attemptFinish();
 }
 
 function attemptFinish(){
+
+  if(mode === "practice"){
+    finishQuiz();
+    return;
+  }
+
   if(answers.includes(null)){
     alert("Υπάρχουν αναπάντητες ερωτήσεις.");
     return;
   }
-  if(confirm("Θέλεις οριστική υποβολή;")){
+
+  const choice = confirm("Πάτα ΟΚ για τελική υποβολή ή Άκυρο για επεξεργασία.");
+
+  if(choice){
     finishQuiz();
+  }else{
+    const firstAnswered = answers.findIndex(a => a !== null);
+    currentQuestion = firstAnswered !== -1 ? firstAnswered : 0;
+    loadQuestion();
   }
 }
 
 function finishQuiz(){
   clearInterval(timerInterval);
-  const total=Math.floor((Date.now()-startTime)/1000);
 
   document.getElementById("quizBox").style.display="none";
   document.getElementById("resultBox").style.display="block";
+  document.getElementById("finalSubmitBtn").style.display = "none";
 
-  document.getElementById("finalTime").innerText=
-    "Συνολικός χρόνος: "+formatTime(total);
+  let totalScore = 0;
 
-  document.getElementById("finalScore").innerText=
-    `Σκορ: ${score} / ${quizQuestions.length}`;
+  quizQuestions.forEach((q, i) => {
 
-  const percent=(score/quizQuestions.length)*100;
-  const msg=document.getElementById("finalMessage");
+    const ans = answers[i];
 
-  if(percent>=85) 
-    msg.innerText="🎉 Εξαιρετική επίδοση! Συνέχισε έτσι.";
-  else if(percent>=60)
-    msg.innerText="👍 Καλή προσπάθεια! Λίγη επανάληψη θα σε βελτιώσει.";
-  else 
-    msg.innerText="📘 Χρειάζεσαι επανάληψη στην θεωρία.";
+    if(q.type === "mcq"){
+      if(ans === q.correct) totalScore++;
+    }
+
+    if(q.type === "group_tf"){
+      let correctCount = 0;
+
+      ans.forEach((val,j)=>{
+        if(String(q.statements[j][1]) === val){
+          correctCount++;
+        }
+      });
+
+      totalScore += (correctCount / q.statements.length);
+    }
+
+    if(q.type === "matching"){
+      let correctCount = 0;
+
+      ans.forEach((val,j)=>{
+        if(val === q.pairs[j][1]){
+          correctCount++;
+        }
+      });
+
+      totalScore += (correctCount / q.pairs.length);
+    }
+
+    if(q.type === "fill"){
+      let index2 = 0;
+      let correctCount = 0;
+      let total = 0;
+
+      q.lines.forEach(line=>{
+        line[1].forEach(word=>{
+          if(ans[index2] === word){
+            correctCount++;
+          }
+          total++;
+          index2++;
+        });
+      });
+
+      totalScore += (correctCount / total);
+    }
+
+  });
+
+  let percent = (totalScore / quizQuestions.length) * 100;
+
+  document.getElementById("finalScore").innerText =
+    `Βαθμολογία: ${percent.toFixed(2)}%`;
+
+const msg = document.getElementById("finalMessage");
+
+if (mode === "exam") {
+
+    if (percent >= 85)
+        msg.innerText = "🎉 Εξαιρετική επίδοση! Συνέχισε έτσι.";
+    else if (percent >= 60)
+        msg.innerText = "👍 Καλή προσπάθεια!";
+    else
+        msg.innerText = "📘 Χρειάζεσαι επανάληψη.";
+
+    // countdown επιστροφής
+    let countdown = 5;
+    const baseMessage = msg.innerText;
+
+    const countdownInterval = setInterval(() => {
+
+        msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στην αρχική σε ${countdown}...`;
+
+        countdown--;
+
+        if (countdown < 0) {
+            clearInterval(countdownInterval);
+            goHome();
+        }
+
+    }, 1000);
+
+} else {
+
+    document.getElementById("finalTime").innerText = "";
+    document.getElementById("finalScore").innerText = "";
+    msg.innerText = "🎓 Ολοκλήρωσες την εξάσκηση!";
+
+}
+
 }
 
 function updateProgress(){
   const answeredCount=answers.filter(a=>a!==null).length;
   const percent=(answeredCount/quizQuestions.length)*100;
   document.getElementById("progressBar").style.width=percent+"%";
+}
+
+function finalSubmit(){
+
+  if(answers.includes(null)){
+    alert("Υπάρχουν αναπάντητες ερωτήσεις!");
+    return;
+  }
+
+  const confirmSubmit = confirm("Η τελική υποβολή θα κλειδώσει τις απαντήσεις σου. Συνεχίζεις;");
+
+  if(!confirmSubmit) return;
+
+  document.querySelectorAll("input, select, button").forEach(el=>{
+    el.disabled = true;
+  });
+
+  finishQuiz();
 }
 
 function renderNavigation(){
@@ -535,6 +811,28 @@ function renderNavigation(){
   });
 }
 
-</script>
+function goHome(){
+  location.reload();
+}
+
+</script>if (mode === "exam") {
+
+    let countdown = 5;
+
+    const baseMessage = msg.innerText;
+
+    const countdownInterval = setInterval(() => {
+
+        msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στην αρχική σε ${countdown}...`;
+
+        countdown--;
+
+        if (countdown < 0) {
+            clearInterval(countdownInterval);
+            goHome();
+        }
+
+    }, 1000);
+}
 </body>
 </html>
