@@ -125,7 +125,8 @@ border:1px solid rgba(0,0,0,0.05);
 
 .term:hover{
 background:#eef6ff;
-transform:translateX(4px);
+transform:translateX(6px) scale(1.01);
+box-shadow:0 8px 18px rgba(0,0,0,0.08);
 }
 
 .term.active{
@@ -312,12 +313,37 @@ display:none;
 <div class="short">Επικίνδυνη επαφή αγωγών</div>
 </div>
 
+<div class="term" data-key="phase">
+<div class="title">Φάση</div>
+<div class="short">Αγωγός που δίνει ρεύμα</div>
+</div>
+
+<div class="term" data-key="neutral">
+<div class="title">Ουδέτερος</div>
+<div class="short">Επιστροφή ρεύματος</div>
+</div>
+
+<div class="term" data-key="ground">
+<div class="title">Γείωση</div>
+<div class="short">Προστασία από διαρροή</div>
+</div>
+
+<div class="term" data-key="fuse">
+<div class="title">Ασφάλεια</div>
+<div class="short">Διακόπτει το ρεύμα</div>
+</div>
+
+<div class="term" data-key="overload">
+<div class="title">Υπερφόρτωση</div>
+<div class="short">Πολλές συσκευές μαζί</div>
+</div>
+
 </div>
 </aside>
 
 <section class="content">
 
-<h2 id="defTitle">Επιλέξτε όρο</h2>
+<h2 id="defTitle" aria-live="polite">Επιλέξτε όρο</h2>
 
 <div id="defText" class="muted" style="text-align:center;padding-top:40px;">
 <div style="opacity:0.7;">
@@ -364,7 +390,7 @@ text:`
 Επιλέγεται γιατί μεταφέρεται πιο εύκολα σε μεγάλες αποστάσεις με μικρές απώλειες.
 </p>
 `,
-img:"images/ac.png"
+img:"../images/glos/ac.png"
 },
 
 voltage:{
@@ -385,7 +411,7 @@ text:`
 Υψηλή τάση μπορεί να είναι επικίνδυνη για τον άνθρωπο.
 </p>
 `,
-img:"images/voltage.png"
+img:"../images/glos/voltage.png"
 },
 
 current:{
@@ -406,7 +432,7 @@ text:`
 Μεγάλη ένταση μπορεί να προκαλέσει υπερθέρμανση καλωδίων.
 </p>
 `,
-img:"images/current.png"
+img:"../images/glos/current.png"
 },
 
 resistance:{
@@ -427,7 +453,7 @@ text:`
 Μετριέται σε Ohm (Ω).
 </p>
 `,
-img:"images/resistance.png"
+img:"../images/glos/resistance.png"
 },
 
 power:{
@@ -448,7 +474,7 @@ text:`
 Όσο μεγαλύτερη η ισχύς, τόσο μεγαλύτερη η κατανάλωση ενέργειας.
 </p>
 `,
-img:"images/power.png"
+img:"../images/glos/power.png"
 },
 
 phase:{
@@ -469,7 +495,7 @@ text:`
 Είναι επικίνδυνη στην επαφή και απαιτεί προσοχή.
 </p>
 `,
-img:"images/phase.png"
+img:"../images/glos/phase.png"
 },
 
 neutral:{
@@ -490,7 +516,7 @@ text:`
 Έχει συνήθως χαμηλό δυναμικό σε σχέση με τη φάση.
 </p>
 `,
-img:"images/neutral.png"
+img:"../images/glos/neutral.png"
 },
 
 ground:{
@@ -511,7 +537,7 @@ text:`
 Είναι απαραίτητη για την ασφάλεια κάθε ηλεκτρικής εγκατάστασης.
 </p>
 `,
-img:"images/ground.png"
+img:"../images/glos/ground.png"
 },
 
 fuse:{
@@ -532,7 +558,7 @@ text:`
 Προστατεύει από υπερφόρτωση και βραχυκύκλωμα.
 </p>
 `,
-img:"images/fuse.png"
+img:"../images/glos/fuse.png"
 },
 
 short:{
@@ -553,7 +579,7 @@ text:`
 Προκαλεί πολύ μεγάλο ρεύμα και είναι επικίνδυνο.
 </p>
 `,
-img:"images/short.png"
+img:"../images/glos/short.png"
 },
 
 overload:{
@@ -574,7 +600,7 @@ text:`
 Προκαλεί υπερθέρμανση και φθορά καλωδίων.
 </p>
 `,
-img:"images/overload.png"
+img:"../images/glos/overload.png"
 }
 
 };
@@ -589,6 +615,11 @@ terms.forEach(x=>x.classList.remove("active"));
 t.classList.add("active");
 
 const k=t.dataset.key;
+if(!DICT[k]){
+title.textContent="Σφάλμα";
+text.innerHTML="❌ Ο όρος δεν βρέθηκε.";
+return;
+}
 
 title.textContent=DICT[k].title;
 
@@ -596,12 +627,12 @@ text.innerHTML=`
 <div class="fade content-flex">
 
 <div class="text-part">
-<p>${DICT[k].text}</p>
+${DICT[k].text}
 </div>
 
 ${DICT[k].img ? `
 <div class="img-part">
-<img src="${DICT[k].img}">
+<img src="${DICT[k].img}" onerror="this.style.display='none'">
 </div>` : ""}
 
 </div>
@@ -613,24 +644,141 @@ window.scrollTo({top:0,behavior:"smooth"});
 
 document.getElementById("btnClose").onclick=()=>{
 title.textContent="Επιλέξτε όρο";
-text.innerHTML="📘 Επιλέξτε έναν όρο από τη λίστα";
+
+text.innerHTML=`
+<div style="opacity:0.7;text-align:center;padding-top:40px;">
+📘 Επιλέξτε έναν όρο από τη λίστα  
+<br><br>
+<span style="font-size:0.9rem;">
+ή χρησιμοποιήστε την αναζήτηση
+</span>
+</div>
+`;
 };
 
 document.getElementById("btnCopy").onclick=()=>{
-navigator.clipboard.writeText(text.innerText);
+navigator.clipboard.writeText(title.textContent + "\n\n" + text.innerText);
 const msg=document.getElementById("copyMsg");
 msg.style.display="block";
 setTimeout(()=>msg.style.display="none",1200);
 };
 
-document.getElementById("searchBox").oninput=function(){
-const q=this.value.toLowerCase();
+const originalTerms = {};
+
 document.querySelectorAll(".term").forEach(t=>{
-t.style.display=t.innerText.toLowerCase().includes(q)?"block":"none";
+originalTerms[t.dataset.key] = {
+html: t.innerHTML,
+text: t.innerText.toLowerCase()
+};
 });
+
+const noResultsMsg = document.createElement("div");
+noResultsMsg.textContent = "❌ Δεν βρέθηκε κάποιος όρος";
+noResultsMsg.style.padding = "10px";
+noResultsMsg.style.textAlign = "center";
+noResultsMsg.style.display = "none";
+document.getElementById("termsContainer").appendChild(noResultsMsg);
+
+document.getElementById("searchBox").oninput=function(){
+
+const q=this.value.toLowerCase().trim();
+let found = 0;
+
+document.querySelectorAll(".term").forEach(t=>{
+
+const data = originalTerms[t.dataset.key];
+
+// 🔴 ψάχνουμε ΜΟΝΟ στο text (όχι HTML)
+if(data.text.includes(q)){
+
+t.style.display="block";
+found++;
+
+// highlight μόνο στο εμφανιζόμενο text (όχι attributes)
+if(q){
+const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const regex=new RegExp(`(${safeQ})`,"gi");
+
+// προσωρινό div για ασφαλές replace
+const temp = document.createElement("div");
+temp.innerHTML = data.html;
+
+temp.querySelectorAll("*").forEach(el=>{
+if(el.children.length === 0){
+el.innerHTML = el.innerHTML.replace(regex,"<mark>$1</mark>");
+}
+});
+
+t.innerHTML = temp.innerHTML;
+
+}else{
+t.innerHTML = data.html;
+}
+
+}else{
+t.style.display="none";
+}
+});
+
+// 🔴 ΜΗΝ εμφανίζεται συνέχεια — μόνο όταν χρειάζεται
+noResultsMsg.style.display = (q && found === 0) ? "block" : "none";
+
 };
 
-</script>
 
+document.getElementById("btnExpandAll").onclick=()=>{
+let html="";
+
+for(let key in DICT){
+html+=`
+<div style="margin-bottom:40px">
+
+<h2>${DICT[key].title}</h2>
+
+<div class="content-flex">
+
+<div class="text-part">
+${DICT[key].text}
+</div>
+
+${DICT[key].img ? `
+<div class="img-part">
+<img src="${DICT[key].img}" onerror="this.style.display='none'">
+</div>` : ""}
+
+</div>
+
+</div>
+`;
+}
+
+text.innerHTML=html;
+title.textContent="Όλοι οι όροι";
+};
+
+document.addEventListener("keydown",e=>{
+const visibleTerms = [...document.querySelectorAll(".term")]
+.filter(t => t.style.display !== "none");
+
+const active=document.querySelector(".term.active");
+let index=visibleTerms.indexOf(active);
+
+if(!active && e.key==="ArrowDown"){
+visibleTerms[0]?.click();
+return;
+}
+
+if(e.key==="ArrowDown"){
+index=Math.min(index+1,visibleTerms.length-1);
+visibleTerms[index]?.click();
+}
+
+if(e.key==="ArrowUp"){
+index=Math.max(index-1,0);
+visibleTerms[index]?.click();
+}
+});
+
+</script>
 </body>
 </html>
