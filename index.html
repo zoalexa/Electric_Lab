@@ -5,8 +5,17 @@
   <meta charset="UTF-8">
   <title>Εκπαιδευτική Προσομοίωση</title>
   <link rel="stylesheet" href="style.css">
+  <script src="auth.js"></script>
 </head>
 
+
+<body>
+
+<script>
+  if (typeof requireEntry === "function") {
+  requireEntry();
+}
+</script>
 
 <!-- HELP MODAL -->
 <div id="helpModal" class="modal-overlay">
@@ -44,15 +53,15 @@
   </div>
 </div>
 
-
-
-<body>
-
 <header>
 
 <div class="brand">
   <img src="images/logo.png" alt="Logo Πανεπιστημίου">
   <h1>ElectricLab</h1>
+</div>
+<div style="display:flex; align-items:center; gap:10px; margin-left:20px;">
+  <div id="userBar" style="font-size:14px;"></div>
+  <button onclick="logout()" style="cursor:pointer;">🚪 Logout</button>
 </div>
 
   <div class="buttons">
@@ -90,7 +99,24 @@
   <p>&copy; 2025-2026 Τμήμα Πληροφορικής - Δ.Π.Θ.</p>
 </footer>
 
+<script>
+const mode = typeof getMode === "function" ? getMode() : "guest";
+const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
 
+const bar = document.getElementById("userBar");
+
+if (bar) {
+  if (mode === "guest") {
+    bar.textContent = "👁 Guest mode (μόνο προβολή)";
+  } 
+  else if (user && user.username) {
+    bar.textContent = "👤 " + user.username;
+  } 
+  else {
+    bar.textContent = "";
+  }
+}
+</script>
 <script src="script.js"></script>
 
 </body>
