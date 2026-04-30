@@ -4,26 +4,91 @@
   <meta charset="UTF-8">
   <title>Forum Ιδέες & Προτάσεις</title>
   <link rel="stylesheet" href="../style.css">
+
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f7fb; padding: 40px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f4f7fb, #ffffff);
+      padding: 40px;
+    }
+
     h1 { text-align: center; }
     .subtitle { text-align: center; color: #555; margin-bottom: 30px; }
-    .top-bar { max-width: 900px; margin: auto; display: flex; justify-content: space-between; margin-bottom: 20px; }
+
+    .top-bar {
+      max-width: 900px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
     .forum-box { max-width: 900px; margin: auto; }
-    .thread { background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    .thread h3 { margin: 0; color: #7b1fa2; }
-    .thread p { margin: 5px 0; font-size: 14px; color: #444; }
-    .thread-info { font-size: 12px; color: #888; margin-bottom: 10px; }
-    .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-right: 5px; }
+
+    .topic {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .topic h3 { margin: 0; color: #7b1fa2; }
+    .topic p { margin: 5px 0; font-size: 14px; color: #444; }
+
+    .topic-info {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      margin-right: 5px;
+    }
+
     .btn-blue { background-color: #1976d2; }
     .btn-green { background-color: #388e3c; }
+
     .btn-blue:hover { background-color: #0d47a1; }
     .btn-green:hover { background-color: #1b5e20; }
-    .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .modal { background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; }
-    .modal input, .modal textarea { width: 100%; margin-bottom: 15px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal input, .modal textarea {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
   </style>
+
+  <script src="../auth.js"></script>
 </head>
+
 <body>
 
 <div class="top-bar">
@@ -32,17 +97,9 @@
 </div>
 
 <h1>Forum Ιδέες & Προτάσεις</h1>
-<div class="subtitle">Προτάσεις για νέες λειτουργίες, βελτιώσεις και εκπαιδευτικά σενάρια</div>
+<div class="subtitle">Προτάσεις για νέες λειτουργίες, βελτιώσεις και εκπαιδευτικά σενάρια.</div>
 
-<div class="forum-box" id="threadsContainer">
-  <div class="thread">
-    <div class="thread-info">Δημιουργήθηκε από: user4 | 01/03/2026</div>
-    <h3>Νέα ιδέα για διαδραστικά κουίζ</h3>
-    <p>Θα ήταν ωραίο να έχουμε κουίζ με διαδραστικά κυκλώματα.</p>
-    <button class="btn btn-green" onclick="replyThread(this)">Απάντηση</button>
-    <div class="replies" style="margin-top:10px;"></div>
-  </div>
-</div>
+<div class="forum-box" id="threadsContainer"></div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -55,47 +112,303 @@
 </div>
 
 <script>
-  const modalOverlay = document.getElementById('modalOverlay');
-  const newThreadBtn = document.getElementById('newThreadBtn');
-  const threadsContainer = document.getElementById('threadsContainer');
+if (typeof requireEntry === "function") requireEntry();
 
-  newThreadBtn.onclick = () => { modalOverlay.style.display = 'flex'; }
-  function closeModal() { modalOverlay.style.display = 'none'; }
+const modalOverlay = document.getElementById("modalOverlay");
+const newThreadBtn = document.getElementById("newThreadBtn");
+const threadsContainer = document.getElementById("threadsContainer");
 
-  function addThread() {
-    const title = document.getElementById('threadTitle').value;
-    const content = document.getElementById('threadContent').value;
-    if(title && content) {
-      const threadDiv = document.createElement('div');
-      threadDiv.className = 'thread';
-      threadDiv.innerHTML = `
-        <div class="thread-info">Δημιουργήθηκε από: guest | Τώρα</div>
-        <h3>${title}</h3>
-        <p>${content}</p>
-        <button class="btn btn-green" onclick="replyThread(this)">Απάντηση</button>
-        <div class="replies" style="margin-top:10px;"></div>
-      `;
-      threadsContainer.prepend(threadDiv);
-      closeModal();
-      document.getElementById('threadTitle').value = '';
-      document.getElementById('threadContent').value = '';
-    } else {
-      alert('Συμπλήρωσε τίτλο και περιεχόμενο!');
-    }
+const mode = typeof getMode === "function" ? getMode() : "guest";
+const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+
+const isAdmin = user && user.role === "admin"; 
+
+// =====================
+// SECURITY
+// =====================
+function isGuest() {
+  return mode === "guest" || !user;
+}
+
+function isUser() {
+  return mode === "user" && user && !isAdmin;
+}
+
+function requireUser() {
+  if (isGuest()) {
+    alert("Login required");
+    return false;
+  }
+  return true;
+}
+
+// =====================
+// STORAGE
+// =====================
+function getThreads() {
+  return JSON.parse(localStorage.getItem("threads_ideas") || "[]");
+}
+
+function setThreads(data) {
+  localStorage.setItem("threads_ideas", JSON.stringify(data));
+}
+
+// =====================
+// UI LOCK
+// =====================
+function lockUI() {
+  if (isGuest()) {
+    newThreadBtn.style.display = "none";
+  }
+}
+
+// =====================
+// LOAD
+// =====================
+function loadThreads() {
+  const threads = getThreads();
+  threads.forEach(renderThread);
+}
+
+// =====================
+// RENDER
+// =====================
+
+function renderThread(data) {
+
+  const id = data.id || Date.now().toString();
+
+  const div = document.createElement("div");
+  div.className = "topic";
+  div.dataset.id = id;
+  div.dataset.user = data.user;
+
+  div.innerHTML = `
+    <div class="topic-info">
+      Δημιουργήθηκε από: ${data.user} ${data.user === "admin" ? "(admin)" : ""}
+      ${(!isGuest() && (isAdmin || data.user === user?.username)) ? `
+        | <button onclick="editThread('${id}')">✏️</button>
+        <button onclick="deleteThread('${id}')">🗑</button>
+      ` : ""}
+    </div>
+
+    <h3>${data.title}</h3>
+    <p>${data.content}</p>
+
+    <button class="btn btn-green reply-btn" onclick="replyThread('${id}')">
+      Απάντηση
+    </button>
+
+    <div class="replies" style="margin-top:10px;"></div>
+  `;
+
+  // GUEST LOCK
+  if (isGuest()) {
+    const btn = div.querySelector(".reply-btn");
+    btn.disabled = true;
+    btn.onclick = null;
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
   }
 
-  function replyThread(btn) {
-    const reply = prompt('Γράψε την απάντηση σου:');
-    if(reply) {
-      const threadDiv = btn.parentElement;
-      const repliesDiv = threadDiv.querySelector('.replies');
-      const p = document.createElement('p');
-      p.textContent = reply;
-      p.style.fontSize = '13px';
-      p.style.color = '#555';
-      repliesDiv.appendChild(p);
-    }
+  // LOAD REPLIES
+  if (data.replies && data.replies.length > 0) {
+    const r = div.querySelector(".replies");
+
+    data.replies.forEach((rep, index) => {
+
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.justifyContent = "space-between";
+      wrapper.style.alignItems = "center";
+      wrapper.style.marginBottom = "5px";
+
+      const p = document.createElement("p");
+      p.textContent = rep.user + ": " + rep.text;
+      p.style.fontSize = "13px";
+      p.style.color = "#555";
+
+      wrapper.appendChild(p);
+
+      // DELETE BUTTON
+      if (!isGuest() && (isAdmin || rep.user === user?.username)) {
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "🗑";
+        delBtn.style.marginLeft = "10px";
+
+        delBtn.onclick = () => deleteReply(id, index);
+
+        wrapper.appendChild(delBtn);
+      }
+
+      r.appendChild(wrapper);
+    });
   }
+
+  threadsContainer.prepend(div);
+}
+
+// =====================
+// CREATE
+// =====================
+newThreadBtn.onclick = () => {
+  if (!requireUser()) return;
+  modalOverlay.style.display = "flex";
+};
+
+function closeModal() {
+  modalOverlay.style.display = "none";
+}
+
+function addThread() {
+
+  if (!requireUser()) return;
+
+  const title = document.getElementById("threadTitle").value;
+  const content = document.getElementById("threadContent").value;
+
+  if (!title || !content) {
+    alert("Συμπλήρωσε τίτλο και περιεχόμενο!");
+    return;
+  }
+
+  const thread = {
+    id: Date.now().toString(),
+    title,
+    content,
+    user: user?.username || "user",
+    replies: []
+  };
+
+  const threads = getThreads();
+  threads.unshift(thread);
+  setThreads(threads);
+
+  renderThread(thread);
+
+  closeModal();
+}
+
+// =====================
+// REPLY
+// =====================
+function replyThread(id) {
+
+  if (!requireUser()) return;
+
+  const text = prompt("Απάντηση:");
+  if (!text) return;
+
+  const threads = getThreads();
+  const t = threads.find(x => x.id === id);
+  if (!t) return;
+
+  if (!t.replies) t.replies = []; // <-- σημαντικό
+
+  t.replies.push({
+    user: user?.username || "user",
+    text: text
+  });
+
+  setThreads(threads);
+  refreshUI();
+}
+
+// =====================
+// EDIT
+// =====================
+function editThread(id) {
+
+  if (!requireUser()) return;
+
+  const threads = getThreads();
+  const t = threads.find(x => x.id === id);
+  if (!t) return;
+
+  if (!isAdmin && t.user !== user?.username) {
+    alert("Μπορείς να επεξεργαστείς μόνο δικά σου posts.");
+    return;
+  }
+
+  const title = prompt("Edit title:", t.title);
+  const content = prompt("Edit content:", t.content);
+
+  if (!title || !content) return;
+
+  t.title = title;
+  t.content = content;
+
+  setThreads(threads);
+  refreshUI();
+}
+
+// =====================
+// DELETE
+// =====================
+function deleteThread(id) {
+
+  if (!requireUser()) return;
+
+  let threads = getThreads();
+
+  const t = threads.find(x => x.id === id);
+if (!t) return;
+
+if (!isAdmin && t.user !== user?.username) {
+  alert("Δεν έχεις δικαίωμα διαγραφής");
+  return;
+}
+
+if (!confirm("Είσαι σίγουρος για διαγραφή;")) return;
+
+threads = threads.filter(x => x.id !== id);
+
+alert("Η ανάρτηση διαγράφηκε");
+
+  setThreads(threads);
+  refreshUI();
+}
+
+function deleteReply(threadId, replyIndex) {
+
+  if (!requireUser()) return;
+
+  const threads = getThreads();
+  const t = threads.find(x => x.id === threadId);
+  if (!t || !t.replies) return;
+
+  const reply = t.replies[replyIndex];
+  if (!reply) return;
+
+  if (!isAdmin && reply.user !== user?.username) {
+    alert("Δεν μπορείς να διαγράψεις αυτή την απάντηση");
+    return;
+  }
+
+  if (!confirm("Διαγραφή απάντησης;")) return;
+
+  t.replies.splice(replyIndex, 1);
+
+  alert("Η απάντηση διαγράφηκε");
+
+  setThreads(threads);
+  refreshUI();
+}
+
+// =====================
+// REFRESH
+// =====================
+function refreshUI() {
+  threadsContainer.innerHTML = "";
+  loadThreads();
+}
+
+// =====================
+// INIT
+// =====================
+lockUI();
+loadThreads();
+
 </script>
 
 </body>
