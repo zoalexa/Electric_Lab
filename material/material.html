@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<title>Εκπαιδευτικό Υλικό</title>
+
+<link rel="stylesheet" href="../style.css">
+<script src="../auth.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #eef2f7, #ffffff);
+  padding: 30px;
+}
+
+/* TOP BAR */
+.topbar {
+  max-width: 1100px;
+  margin: auto;
+  margin-bottom: 25px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* MATERIAL */
+.material-container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* CATEGORY TITLE */
+.section-title {
+  margin-top: 30px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+
+.card-body {
+  margin: 10px 0;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-actions {
+  margin-top: 10px;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview iframe {
+  border-radius: 8px;
+}
+
+.video-thumb {
+  position: relative;
+  cursor: pointer;
+}
+
+.video-thumb img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.video-thumb:hover {
+  transform: scale(1.02);
+  transition: 0.2s;
+}
+
+.video-thumb {
+  cursor: pointer;
+}
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 28px;
+  padding: 10px 14px;
+  border-radius: 50%;
+}
+
+/* BUTTONS */
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.15s;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+.open-btn {
+  background: #1976d2;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.add-btn { background:#388e3c; color:white; }
+.edit-btn { background:#f57c00; color:white; }
+.delete-btn { background:#b22222; color:white; }
+
+/* MODAL */
+.modal-overlay {
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal {
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  width:90%;
+  max-width:500px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  width:100%;
+  margin-bottom:12px;
+  padding:8px;
+}
+
+.modal-buttons {
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+input, select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: #1976d2;
+}
+</style>
+</head>
+
+<body>
+
+<script>requireEntry();</script>
+
+<h1 style="text-align:center;">📚 Εκπαιδευτικό Υλικό</h1>
+
+<!-- TOP BAR -->
+<div class="topbar">
+
+  <div class="filters">
+    <select id="filterType">
+      <option value="all">Όλα</option>
+      <option value="video">🎥 Video</option>
+      <option value="doc">📄 Document</option>
+      <option value="link">🔗 Links</option>
+    </select>
+
+    <select id="filterCategory">
+      <option value="all">Όλες οι κατηγορίες</option>
+      <option value="Θεωρία">Θεωρία</option>
+      <option value="Ασκήσεις">Ασκήσεις</option>
+      <option value="Βίντεο">Βίντεο</option>
+    </select>
+
+    <input id="searchInput" placeholder="🔍 Αναζήτηση τίτλου...">
+  </div>
+
+  <div>
+    <a href="../index.html">
+      <button style="background:#1976d2; color:white;">🏠 Αρχική</button>
+    </a>
+
+    <button id="addMaterialBtn" class="add-btn" style="display:none;">
+      ➕ Προσθήκη
+    </button>
+  </div>
+
+</div>
+
+<!-- MATERIAL -->
+<div id="materialContainer" class="material-container"></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-overlay">
+  <div class="modal">
+
+    <h3>Προσθήκη Υλικού</h3>
+
+    <input id="matTitle" placeholder="Τίτλος">
+    <textarea id="matDesc" placeholder="Περιγραφή"></textarea>
+
+    <select id="matType">
+      <option value="video">🎥 Video</option>
+      <option value="doc">📄 Document</option>
+      <option value="link">🔗 Link</option>
+    </select>
+
+    <select id="matCategory">
+      <option value="Θεωρία">Θεωρία</option>
+      <option value="Ασκήσεις">Ασκήσεις</option>
+      <option value="Βίντεο">Βίντεο</option>
+      <option value="custom">➕ Άλλο...</option>
+    </select>
+
+    <input id="customCategory" placeholder="Δική σου κατηγορία" style="display:none;">
+    <input id="matLink" placeholder="Link (προαιρετικό)">
+    <input type="file" id="matFile">
+    <div id="filePreview"></div>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal()">Κλείσιμο</button>
+      <button onclick="saveMaterial()" class="add-btn">Αποθήκευση</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="material.js"></script>
+
+</body>
+</html>
