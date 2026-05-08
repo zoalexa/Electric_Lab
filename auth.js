@@ -22,7 +22,7 @@ function login() {
   }
 
   localStorage.setItem("currentUser", JSON.stringify(user));
-  localStorage.setItem("mode", "user");
+  localStorage.setItem("mode", user.role);
 
   window.location.href = "index.html";
 }
@@ -61,7 +61,7 @@ function requireEntry() {
 
   if (mode === "guest") return;
 
-  if (mode === "user" && !user) {
+  if ((mode === "user" || mode === "admin") && !user) {
     window.location.href = "login.html";
   }
 }
