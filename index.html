@@ -61,7 +61,7 @@
 </div>
 <div style="display:flex; align-items:center; gap:10px; margin-left:20px;">
   <div id="userBar" style="font-size:14px;"></div>
-  <button onclick="logout()" style="cursor:pointer;">🚪 Logout</button>
+  <button id="authBtn" style="cursor:pointer;"></button>
 </div>
 
   <div class="buttons">
@@ -70,6 +70,7 @@
     <button id="btnVideos">Video Lessons</button>
     <button onclick="openHomework()">HomeWork</button>
     <button onclick="openForum()">Forum</button>
+    <button id="btnMaterial" style="display:none;" onclick="openMaterial()">Υλικό Μαθήματος</button>
   </div>
 
 </header>
@@ -110,11 +111,28 @@ if (bar) {
     bar.textContent = "👁 Guest mode (μόνο προβολή)";
   } 
   else if (user && user.username) {
-    bar.textContent = "👤 " + user.username;
+  bar.textContent = "👤 " + user.username + " (" + user.role + ")";
   } 
   else {
     bar.textContent = "";
   }
+}
+
+// ===== MATERIAL BUTTON CONTROL =====
+const materialBtn = document.getElementById("btnMaterial");
+
+if (mode !== "guest" && materialBtn) {
+  materialBtn.style.display = "inline-block";
+}
+
+const authBtn = document.getElementById("authBtn");
+
+if (mode === "guest") {
+  authBtn.textContent = "🔐 Login";
+  authBtn.onclick = () => window.location.href = "login.html";
+} else {
+  authBtn.textContent = "🚪 Logout";
+  authBtn.onclick = logout;
 }
 </script>
 <script src="script.js"></script>
