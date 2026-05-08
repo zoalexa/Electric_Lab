@@ -32,3 +32,7 @@ function openHomework() {
 function openForum() {
   window.location.href = "forum/forum.html";
 }
+
+function openMaterial() {
+  window.location.href = "material/material.html";
+}
