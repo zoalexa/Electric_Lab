@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <script src="auth.js"></script>
+  <script src="learningFlow.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #eef2f7, #f9fbfd);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .back-btn:hover { background: #1256a0; }
+
+    /* ===== USER CARDS ===== */
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .user-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      padding: 24px;
+      border-top: 5px solid #1976d2;
+    }
+
+    .user-card h2 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-card .role-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: #e3f0ff;
+      color: #1976d2;
+      font-weight: normal;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .prog-wrap {
+      background: #e0e7ef;
+      border-radius: 6px;
+      height: 10px;
+      margin: 14px 0 4px 0;
+      overflow: hidden;
+    }
+
+    .prog-fill {
+      height: 10px;
+      background: linear-gradient(90deg, #1976d2, #4ade80);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    .prog-label {
+      font-size: 12px;
+      color: #555;
+      text-align: right;
+      margin-bottom: 16px;
+    }
+
+    /* ===== CHECKLIST ===== */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px 0;
+    }
+
+    .checklist li {
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .check-done { color: #22c55e; font-size: 15px; }
+    .check-no   { color: #ccc;    font-size: 15px; }
+
+    /* ===== ACTIONS ===== */
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-reset {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn-reset:hover { background: #dc2626; }
+
+    .btn-unlock {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn-unlock:hover { background: #16a34a; }
+
+    /* ===== SUMMARY BAR ===== */
+    .summary-bar {
+      max-width: 1100px;
+      margin: 0 auto 28px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 18px 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .summary-item .num {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1976d2;
+    }
+
+    .summary-item .lbl {
+      font-size: 12px;
+      color: #777;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #aaa;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  // Μόνο admin έχει πρόσβαση
+  const _mode = localStorage.getItem("mode");
+  const _user = JSON.parse(localStorage.getItem("currentUser") || "null");
+  if (!_mode || _mode !== "admin" || !_user) {
+    window.location.href = "index.html";
+  }
+</script>
+
+<h1>⚙️ Admin Panel</h1>
+<div class="subtitle">Διαχείριση προόδου χρηστών — ElectricLab</div>
+
+<div style="max-width:1100px; margin: 0 auto 20px auto;">
+  <a href="index.html" class="back-btn">← Αρχική</a>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-bar" id="summaryBar"></div>
+
+<!-- USER CARDS -->
+<div class="users-grid" id="usersGrid"></div>
+
+<script>
+const USERS_LIST = [
+  { username: "user1", role: "user" },
+  { username: "user2", role: "user" }
+];
+
+const VIDEO_LABELS = {
+  video1: "Βασικό Ηλεκτρικό Κύκλωμα",
+  video2: "Απλός Διακόπτης Φωτισμού",
+  video3: "Διακόπτης-Κομιτατέρ",
+  video4: "Αλερετούρ Μέρος 1ο",
+  video5: "Αλερετούρ Μέρος 2ο",
+  video6: "Κύκλωμα Πρίζας",
+  video7: "Πρίζα + Απλός Διακόπτης",
+  video8: "Ασφάλειες & Προστασία",
+  video9: "Ηλεκτρικός Πίνακας"
+};
+
+function loadUserProgress(username) {
+  try {
+    const raw = localStorage.getItem(`progress_${username}`);
+    if (!raw) return createDefaultProgress();
+    const saved = JSON.parse(raw);
+    return {
+      ...createDefaultProgress(),
+      ...saved,
+      videos: { ...createDefaultProgress().videos, ...saved.videos },
+      unlocked: { ...createDefaultProgress().unlocked, ...saved.unlocked }
+    };
+  } catch {
+    return createDefaultProgress();
+  }
+}
+
+function calcPercent(progress) {
+  const steps = [
+    progress.unlocked.glossary,
+    progress.videos.video1, progress.videos.video2,
+    progress.videos.video3, progress.videos.video4,
+    progress.videos.video5, progress.videos.video6,
+    progress.videos.video7, progress.videos.video8,
+    progress.videos.video9, progress.unlocked.homework
+  ];
+  return Math.round(steps.filter(Boolean).length / steps.length * 100);
+}
+
+function resetUser(username) {
+  if (!confirm(`Είσαι σίγουρος ότι θέλεις να διαγράψεις την πρόοδο του ${username};`)) return;
+  localStorage.removeItem(`progress_${username}`);
+  renderAll();
+  showToast(`🗑️ Η πρόοδος του <b>${username}</b> διαγράφηκε.`);
+}
+
+function unlockAll(username) {
+  if (!confirm(`Ξεκλείδωμα όλου του υλικού για τον ${username};`)) return;
+  const progress = createDefaultProgress();
+  // unlock everything
+  Object.keys(progress.unlocked).forEach(k => progress.unlocked[k] = true);
+  Object.keys(progress.videos).forEach(k => progress.videos[k] = true);
+  progress.glossaryVisited = true;
+  localStorage.setItem(`progress_${username}`, JSON.stringify(progress));
+  renderAll();
+  showToast(`🔓 Όλο το υλικό ξεκλειδώθηκε για τον <b>${username}</b>.`);
+}
+
+function renderSummary() {
+  const bar = document.getElementById("summaryBar");
+  const total = USERS_LIST.length;
+  let completed = 0;
+  let totalPct = 0;
+
+  USERS_LIST.forEach(u => {
+    const p = loadUserProgress(u.username);
+    const pct = calcPercent(p);
+    totalPct += pct;
+    if (pct === 100) completed++;
+  });
+
+  const avgPct = total > 0 ? Math.round(totalPct / total) : 0;
+
+  bar.innerHTML = `
+    <div class="summary-item">
+      <span class="num">${total}</span>
+      <span class="lbl">Σύνολο Χρηστών</span>
+    </div>
+    <div class="summary-item">
+      <span class="num">${completed}</span>
+      <span class="lbl">Ολοκλήρωσαν</span>
+    </div>
+    <div class="summary-item">
+      <span class="num">${total - completed}</span>
+      <span class="lbl">Σε Εξέλιξη</span>
+    </div>
+    <div class="summary-item">
+      <span class="num">${avgPct}%</span>
+      <span class="lbl">Μέση Πρόοδος</span>
+    </div>
+  `;
+}
+
+function renderAll() {
+  renderSummary();
+
+  const grid = document.getElementById("usersGrid");
+  grid.innerHTML = "";
+
+  USERS_LIST.forEach(u => {
+    const p = loadUserProgress(u.username);
+    const pct = calcPercent(p);
+
+    // Videos checklist
+    const videoItems = Object.entries(VIDEO_LABELS).map(([key, label]) => `
+      <li>
+        <span class="${p.videos[key] ? 'check-done' : 'check-no'}">
+          ${p.videos[key] ? '✅' : '⬜'}
+        </span>
+        ${label}
+      </li>
+    `).join("");
+
+    // Unlocks checklist
+    const unlockItems = [
+      { key: "glossary",  label: "Γλωσσάριο" },
+      { key: "homework",  label: "Homework" },
+      { key: "forum",     label: "Forum" },
+      { key: "material",  label: "Υλικό Μαθήματος" }
+    ].map(item => `
+      <li>
+        <span class="${p.unlocked[item.key] ? 'check-done' : 'check-no'}">
+          ${p.unlocked[item.key] ? '✅' : '⬜'}
+        </span>
+        ${item.label}
+      </li>
+    `).join("");
+
+    grid.innerHTML += `
+      <div class="user-card">
+        <h2>
+          👤 ${u.username}
+          <span class="role-badge">${u.role}</span>
+        </h2>
+
+        <div class="prog-wrap">
+          <div class="prog-fill" style="width: ${pct}%"></div>
+        </div>
+        <div class="prog-label">Πρόοδος: ${pct}%</div>
+
+        <b style="font-size:13px;">📹 Βίντεο</b>
+        <ul class="checklist">${videoItems}</ul>
+
+        <b style="font-size:13px;">🔓 Ξεκλειδωμένα</b>
+        <ul class="checklist">${unlockItems}</ul>
+
+        <div class="card-actions">
+          <button class="btn-reset"  onclick="resetUser('${u.username}')">
+            🗑️ Reset Προόδου
+          </button>
+          <button class="btn-unlock" onclick="unlockAll('${u.username}')">
+            🔓 Ξεκλείδωμα Όλων
+          </button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+renderAll();
+</script>
+</body>
+</html>
