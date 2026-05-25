@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <title>Γλωσσάριο — Λεξικό Όρων</title>
 
 <style>
@@ -368,6 +370,16 @@ display:none;
 </div>
 
 <script>
+
+// =========================
+// GLOSSARY LEARNING FLOW
+// =========================
+
+window.addEventListener("load", () => {
+  if (typeof unlockGlossary === "function") {
+    unlockGlossary();
+  }
+});
 
 const DICT={
 
@@ -780,5 +792,7 @@ visibleTerms[index]?.click();
 });
 
 </script>
+
+
 </body>
 </html>
