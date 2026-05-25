@@ -183,9 +183,11 @@ function renderThread(data) {
   div.dataset.id = id;
   div.dataset.user = data.user;
 
-  div.innerHTML = `
+  const date = data.id ? new Date(parseInt(data.id)).toLocaleString("el-GR") : "";
+div.innerHTML = `
     <div class="topic-info">
       Δημιουργήθηκε από: ${data.user} ${data.user === "admin" ? "(admin)" : ""}
+      — ${date}
       ${(!isGuest() && (isAdmin || data.user === user?.username)) ? `
         | <button onclick="editThread('${id}')">✏️</button>
         <button onclick="deleteThread('${id}')">🗑</button>
