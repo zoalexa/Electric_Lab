@@ -142,10 +142,56 @@
     .bar-black { border-top: 5px solid #030100; }
     .bar-brown { border-top: 5px solid #4b2600; }
     .bar-magenta { border-top: 5px solid #f500b6; }
+
+    /* video lock */
+    .video-card.locked {
+      opacity: 0.45;
+      filter: grayscale(1);
+      position: relative;
+      }
+
+    .video-card.locked a {
+      pointer-events: none;
+      }
+
+    .video-card.locked::after {
+      content: "🔒 Κλειδωμένο";
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.75);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
   </style>
 </head>
 
 <body>
+
+<!-- PROGRESS BAR VIDEOS -->
+<div id="videosProgressWrap" style="
+  background: #e0e7ef;
+  height: 10px;
+  width: 100%;
+  display: none;
+">
+  <div id="videosProgressFill" style="
+    height: 10px;
+    width: 0%;
+    background: linear-gradient(90deg, #1976d2, #4ade80);
+    transition: width 0.6s ease;
+    border-radius: 0 6px 6px 0;
+  "></div>
+</div>
+<div id="videosProgressLabel" style="
+  display: none;
+  text-align: right;
+  font-size: 12px;
+  color: #555;
+  padding: 4px 16px 0 0;
+"></div>
 
 <h1>Βίντεο Διδασκαλίας</h1>
 <div class="subtitle">
@@ -163,7 +209,7 @@
 <div class="videos-grid list-view" id="videosContainer">
 
   <!-- ΒΙΝΤΕΟ 1 -->
-  <div class="video-card bar-blue">
+  <div class="video-card bar-blue" data-video="video1">
     <img src="../images/video-basic-circuit.jpg" alt="Βασικό ηλεκτρικό κύκλωμα">
     <div class="video-content">
       <h3>Βασικό Ηλεκτρικό Κύκλωμα</h3>
@@ -174,11 +220,15 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video1')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
   <!-- ΒΙΝΤΕΟ 2 -->
-  <div class="video-card bar-green">
+  <div class="video-card bar-green" data-video="video2">
     <img src="../images/video-switch.jpg" alt="Διακόπτης φωτισμού">
     <div class="video-content">
       <h3>Απλός Διακόπτης Φωτισμού</h3>
@@ -189,11 +239,15 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video2')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
   <!-- ΒΙΝΤΕΟ 3 -->
-  <div class="video-card bar-orange">
+  <div class="video-card bar-orange" data-video="video3">
     <img src="../images/video-comit.jpg" alt="Αλερετούρ">
     <div class="video-content">
       <h3>Διακόπτης-Κομιτατέρ(Συνδεσμολογία)</h3>
@@ -204,12 +258,16 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video3')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
 
   <!-- ΒΙΝΤΕΟ 4 -->
-  <div class="video-card bar-purple">
+  <div class="video-card bar-purple" data-video="video4">
     <img src="../images/video-aleretour.jpg" alt="Αλερετούρ">
     <div class="video-content">
       <h3>Κύκλωμα Αλερετούρ (Μέρος 1ο)</h3>
@@ -220,12 +278,16 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video4')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
 
   <!-- ΒΙΝΤΕΟ 5 -->
-  <div class="video-card bar-purple">
+  <div class="video-card bar-purple" data-video="video5">
     <img src="../images/video-aleretour.jpg" alt="Αλερετούρ">
     <div class="video-content">
       <h3>Κύκλωμα Αλερετούρ (Μέρος 2ο)</h3>
@@ -236,12 +298,16 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video5')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
 
   <!-- ΒΙΝΤΕΟ 6 -->
-  <div class="video-card bar-red">
+  <div class="video-card bar-red" data-video="video6">
     <img src="../images/video-socket.jpg" alt="Αλερετούρ">
     <div class="video-content">
       <h3>Κύκλωμα Πρίζας</h3>
@@ -252,11 +318,15 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video6')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
   <!-- ΒΙΝΤΕΟ 7 -->
-  <div class="video-card bar-black">
+  <div class="video-card bar-black" data-video="video7">
     <img src="../images/video-socket+light.jpg" alt="Πρίζα+Διακόπτης">
     <div class="video-content">
       <h3>Κύκλωμα Πρίζας + Απλός Διακόπτης</h3>
@@ -267,11 +337,15 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video7')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
   <!-- ΒΙΝΤΕΟ 8 -->
-  <div class="video-card bar-brown">
+  <div class="video-card bar-brown" data-video="video8">
     <img src="../images/video-fuse.jpg" alt="Ασφάλειες ηλεκτρικού πίνακα">
     <div class="video-content">
       <h3>Ασφάλειες & Προστασία Κυκλωμάτων</h3>
@@ -282,11 +356,15 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video8')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
   <!-- ΒΙΝΤΕΟ 9 -->
-  <div class="video-card bar-magenta">
+  <div class="video-card bar-magenta" data-video="video9">
     <img src="../images/video-panel.jpg" alt="Ηλεκτρικός πίνακας κατοικίας">
     <div class="video-content">
       <h3>Ηλεκτρικός Πίνακας Κατοικίας</h3>
@@ -297,25 +375,120 @@
     </div>
     <div class="video-footer">
       <a href="https://www.youtube.com/watch?v=XXXXXXXX" target="_blank">Παρακολούθηση</a>
+        <br><br>
+           <button class="complete-btn" onclick="markVideoCompleted('video9')">
+            Ολοκλήρωση
+           </button>
     </div>
   </div>
 
 
 </div>
 
+
+<script src="../learningFlow.js"></script>
+
 <script>
+
+// =========================
+// VIDEO LOCK SYSTEM
+// =========================
+
+function applyLocks() {
+  if (typeof loadProgress !== "function") return;
+
+  const progress = loadProgress();
+
+  document.querySelectorAll(".video-card").forEach(card => {
+    const id = card.dataset.video;
+
+    if (!id) {
+      console.warn("Missing data-video on card:", card);
+      return;
+    }
+
+    const unlocked = progress.unlocked?.[id] === true;
+    const completed = progress.videos?.[id] === true;
+
+    if (unlocked !== true) {
+      card.classList.add("locked");
+    } else {
+      card.classList.remove("locked");
+    }
+
+    const button = card.querySelector(".complete-btn");
+
+    if (button) {
+      if (!unlocked) {
+        button.disabled = true;
+        button.textContent = "🔒 Κλειδωμένο";
+      } else if (completed) {
+        button.disabled = true;
+        button.textContent = "✅ Ολοκληρώθηκε";
+      } else {
+        button.disabled = false;
+        button.textContent = "📋 Ολοκλήρωση";
+      }
+    }
+  });
+}
+
+function initVideos() {
+  applyLocks();
+  updateVideosProgress();
+  window.addEventListener("progressUpdated", () => {
+    applyLocks();
+    updateVideosProgress();
+  });
+
+function updateVideosProgress() {
+  const mode = localStorage.getItem("mode");
+  const wrap  = document.getElementById("videosProgressWrap");
+  const fill  = document.getElementById("videosProgressFill");
+  const label = document.getElementById("videosProgressLabel");
+
+  if (!mode || mode === "guest") return;
+
+  const progress = loadProgress();
+  const videos = ["video1","video2","video3","video4","video5",
+                  "video6","video7","video8","video9"];
+  const done = videos.filter(v => progress.videos[v] === true).length;
+  const pct  = Math.round((done / videos.length) * 100);
+
+  if (wrap)  { wrap.style.display  = "block"; }
+  if (fill)  { fill.style.width    = pct + "%"; }
+  if (label) {
+    label.style.display = "block";
+    label.textContent   = `Βίντεο: ${done}/${videos.length} (${pct}%)`;
+  }
+}
+
+  // =========================
+  // VIEW TOGGLE
+  // =========================
   const viewBtn = document.getElementById("viewBtn");
   const container = document.getElementById("videosContainer");
 
-  viewBtn.addEventListener("click", function () {
-    container.classList.toggle("list-view");
+  if (viewBtn && container) {
+    viewBtn.addEventListener("click", () => {
+      container.classList.toggle("list-view");
+      viewBtn.textContent =
+        container.classList.contains("list-view")
+          ? "Grid View"
+          : "List View";
+    });
+  }
+}
 
-    if (container.classList.contains("list-view")) {
-      viewBtn.textContent = "Grid View";
-    } else {
-      viewBtn.textContent = "List View";
-    }
-  });
+// =========================
+// INIT
+// =========================
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initVideos);
+} else {
+  initVideos();
+}
+
 </script>
 
 </body>
