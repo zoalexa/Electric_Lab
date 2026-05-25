@@ -169,6 +169,7 @@
     <div class="forum-content">
       <h3>Ερωτήσεις Μαθητών</h3>
       <p>Απορίες σχετικά με κυκλώματα, θεωρία και προσομοιώσεις.</p>
+      <span id="count_theory" style="font-size:12px; color:#1976d2;"></span>
     </div>
     <div class="forum-footer">
       <button class="btn-blue"
@@ -181,6 +182,7 @@
     <div class="forum-content">
       <h3>Σενάρια Βλαβών</h3>
       <p>Συζήτηση πραγματικών περιπτώσεων και λύσεων.</p>
+      <span id="count_scenarios" style="font-size:12px; color:#388e3c;"></span>
     </div>
     <div class="forum-footer">
       <button class="btn-green"
@@ -193,6 +195,7 @@
     <div class="forum-content">
       <h3>Ασκήσεις & Homework</h3>
       <p>Ανάλυση ασκήσεων και βοήθεια στην κατανόηση.</p>
+      <span id="count_homework" style="font-size:12px; color:#f57c00;"></span>
     </div>
     <div class="forum-footer">
       <button class="btn-orange"
@@ -205,6 +208,7 @@
     <div class="forum-content">
       <h3>Ιδέες & Προτάσεις</h3>
       <p>Προτάσεις για νέες λειτουργίες και σενάρια.</p>
+      <span id="count_ideas" style="font-size:12px; color:#7b1fa2;"></span>
     </div>
     <div class="forum-footer">
       <button class="btn-purple"
@@ -218,15 +222,24 @@
 <script>
   const viewBtn = document.getElementById("viewBtn");
   const container = document.getElementById("forumContainer");
-
   viewBtn.addEventListener("click", function () {
     container.classList.toggle("list-view");
+    viewBtn.textContent = container.classList.contains("list-view")
+      ? "Grid View" : "List View";
+  });
 
-    if (container.classList.contains("list-view")) {
-      viewBtn.textContent = "Grid View";
-    } else {
-      viewBtn.textContent = "List View";
-    }
+  // Εμφάνιση αριθμού αναρτήσεων
+  const counts = {
+    "threads_theory":    document.getElementById("count_theory"),
+    "threads_scenarios": document.getElementById("count_scenarios"),
+    "threads_homework":  document.getElementById("count_homework"),
+    "threads_ideas":     document.getElementById("count_ideas")
+  };
+
+  Object.entries(counts).forEach(([key, el]) => {
+    if (!el) return;
+    const threads = JSON.parse(localStorage.getItem(key) || "[]");
+    el.textContent = threads.length + " αναρτήσεις";
   });
 </script>
 
