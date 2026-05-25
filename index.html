@@ -6,6 +6,8 @@
   <title>Εκπαιδευτική Προσομοίωση</title>
   <link rel="stylesheet" href="style.css">
   <script src="auth.js"></script>
+  <script src="learningFlow.js"></script>
+  <script src="script.js"></script>
 </head>
 
 
@@ -68,14 +70,39 @@
     <button id="btnHelp">Info</button>
     <button id="btnGlos">Γλωσσάριο</button>
     <button id="btnVideos">Video Lessons</button>
-    <button onclick="openHomework()">HomeWork</button>
-    <button onclick="openForum()">Forum</button>
-    <button id="btnMaterial" style="display:none;" onclick="openMaterial()">Υλικό Μαθήματος</button>
+    <button id="btnHomework">HomeWork</button>
+    <button id="btnForum">Forum</button>
+    <button id="btnMaterial" style="display:none;">Υλικό Μαθήματος</button>
+    <button id="btnAdmin" style="display:none; background:#7b1fa2; color:white;" 
+     onclick="window.location.href='admin.html'">
+  ⚙️ Admin Panel
+    </button>
   </div>
 
 </header>
 
-
+<!-- PROGRESS BAR -->
+<div id="progressBarWrap" style="
+  display: none;
+  background: #e0e7ef;
+  height: 10px;
+  width: 100%;
+">
+  <div id="progressBarFill" style="
+    height: 10px;
+    width: 0%;
+    background: linear-gradient(90deg, #1976d2, #4ade80);
+    transition: width 0.6s ease;
+    border-radius: 0 6px 6px 0;
+  "></div>
+</div>
+<div id="progressLabel" style="
+  display: none;
+  text-align: right;
+  font-size: 12px;
+  color: #555;
+  padding: 4px 16px 0 0;
+"></div>
 
 <main class="main-content">
 
@@ -92,6 +119,34 @@
   συνδεσμολογίες και να παρατηρήσει τη λειτουργία τους
   σε πραγματικό χρόνο.
   </p>
+
+<!-- NEXT STEP -->
+<div id="nextStepBox" style="
+  display: none;
+  margin-top: 20px;
+  padding: 14px 20px;
+  background: #f0f7ff;
+  border-left: 4px solid #1976d2;
+  border-radius: 8px;
+  font-size: 15px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+">
+
+  <span id="nextStepLabel"></span>
+  <button id="nextStepBtn" style="
+    background: #1976d2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+  ">Πήγαινε →</button>
+</div>
+
   </div>
 
 </main>
@@ -125,6 +180,11 @@ if (mode !== "guest" && materialBtn) {
   materialBtn.style.display = "inline-block";
 }
 
+const adminBtn = document.getElementById("btnAdmin");
+if (mode === "admin" && adminBtn) {
+  adminBtn.style.display = "inline-block";
+}
+
 const authBtn = document.getElementById("authBtn");
 
 if (mode === "guest") {
@@ -134,8 +194,70 @@ if (mode === "guest") {
   authBtn.textContent = "🚪 Logout";
   authBtn.onclick = logout;
 }
+
+function updateProgressUI() {
+  const mode = localStorage.getItem("mode");
+
+  const wrap  = document.getElementById("progressBarWrap");
+  const fill  = document.getElementById("progressBarFill");
+  const label = document.getElementById("progressLabel");
+  const nextBox = document.getElementById("nextStepBox");
+  const nextLabel = document.getElementById("nextStepLabel");
+  const nextBtn = document.getElementById("nextStepBtn");
+
+  if (!mode || mode === "guest") {
+    if (wrap) wrap.style.display = "none";
+    if (nextBox) nextBox.style.display = "none";
+    return;
+  }
+
+  // Progress bar
+  const pct = getProgressPercent();
+  if (wrap) wrap.style.display = "block";
+  if (fill) fill.style.width = pct + "%";
+  if (label) {
+    label.style.display = "block";
+    label.textContent = `Πρόοδος: ${pct}%`;
+  }
+
+  // Next step
+  const next = getNextStep();
+  if (next && nextBox && nextLabel) {
+    nextBox.style.display = "flex";
+    nextLabel.textContent = next.label;
+    if (nextBtn) {
+      if (next.action) {
+        nextBtn.style.display = "inline-block";
+        nextBtn.onclick = () => window.location.href = next.action;
+      } else {
+        nextBtn.style.display = "none";
+      }
+    }
+  } else if (nextBox) {
+    nextBox.style.display = "none";
+  }
+}
+
+window.addEventListener("load", () => {
+  if (typeof applyLocks === "function") {
+    applyLocks();
+  }
+  updateProgressUI();
+  window.addEventListener("progressUpdated", () => {
+    applyLocks();
+    updateProgressUI();
+  });
+
+  const mode = localStorage.getItem("mode");
+  if (mode && mode !== "guest") {
+    const progress = loadProgress();
+    if (!progress.glossaryVisited) {
+      showToast("👋 Καλωσήρθες! Ξεκίνα από το <b>Info</b> και μετά το <b>Γλωσσάριο</b>.");
+    }
+  }
+});
+
 </script>
-<script src="script.js"></script>
 
 </body>
 </html>
