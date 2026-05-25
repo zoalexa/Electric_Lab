@@ -1,38 +1,57 @@
-window.onload = function() {
+window.addEventListener("DOMContentLoaded", () => {
 
-    // κουμπί γλωσσάριο
-    document.getElementById("btnGlos").onclick = function() {
-        window.location.href = "data/glos.html";
+  const btnGlos     = document.getElementById("btnGlos");
+  const btnVideos   = document.getElementById("btnVideos");
+  const btnHelp     = document.getElementById("btnHelp");
+  const btnHomework = document.getElementById("btnHomework");
+  const btnForum    = document.getElementById("btnForum");
+  const btnMaterial = document.getElementById("btnMaterial");
+
+  if (btnHelp) {
+    btnHelp.onclick = () => {
+      document.getElementById("helpModal").style.display = "flex";
     };
+  }
 
-    // κουμπί video lessons
-    document.getElementById("btnVideos").onclick = function() {
-        window.location.href = "data/videos.html";
+  if (btnGlos) {
+    btnGlos.onclick = () => {
+      window.location.href = "data/glos.html";
     };
+  }
 
-
-    // κουμπί βοήθειας-info
-    document.getElementById("btnHelp").onclick = function() {
-       openHelpModal();
+  if (btnVideos) {
+    btnVideos.onclick = () => {
+      const p = loadProgress();
+      if (p.unlocked.video1) window.location.href = "data/videos.html";
     };
-};
+  }
 
-function openHelpModal() {
-  document.getElementById("helpModal").style.display = "flex";
-}
+  if (btnHomework) {
+    btnHomework.onclick = () => {
+      const p = loadProgress();
+      if (p.unlocked.homework) window.location.href = "homework/homework.html";
+    };
+  }
+
+  if (btnForum) {
+    btnForum.onclick = () => {
+      const p = loadProgress();
+      if (p.unlocked.forum) window.location.href = "forum/forum.html";
+    };
+  }
+
+  if (btnMaterial) {
+    btnMaterial.onclick = () => {
+      const p = loadProgress();
+      if (p.unlocked.material) window.location.href = "material/material.html";
+    };
+  }
+
+});
 
 function closeHelpModal() {
   document.getElementById("helpModal").style.display = "none";
-}
-
-function openHomework() {
-  window.location.href = "homework/homework.html";
-}
-
-function openForum() {
-  window.location.href = "forum/forum.html";
-}
-
-function openMaterial() {
-  window.location.href = "material/material.html";
+  if (typeof unlockGlossaryFromInfo === "function") {
+    unlockGlossaryFromInfo();
+  }
 }
