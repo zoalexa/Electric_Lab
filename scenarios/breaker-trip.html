@@ -1,89 +1,90 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Σενάριο – Πτώση Αυτόματης Ασφάλειας (Under Construction)</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #eef2f6;
-  margin:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  text-align:center;
-}
-header {
-  background:#1e3a5f;
-  color:white;
-  width:100%;
-  padding:20px;
-  box-sizing:border-box;
-}
-main {
-  margin-top:40px;
-}
-h1 {
-  font-size:36px;
-  color:#1e3a5f;
-  margin-bottom:20px;
-}
-p {
-  font-size:20px;
-  color:#333;
-}
-.under-construction {
-  width:150px;
-  height:150px;
-  border:5px dashed #1e3a5f;
-  border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-weight:bold;
-  color:#1e3a5f;
-  margin:20px auto;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-  0% {transform: scale(1); opacity:1;}
-  50% {transform: scale(1.1); opacity:0.7;}
-  100% {transform: scale(1); opacity:1;}
-}
-
-    .top-nav{
-      display:flex;
-      justify-content:space-between;
-      margin-bottom:20px;
-    }
-
-    .top-nav button{
-      padding:8px 16px;
-      border-radius:6px;
-      font-size:14px;
-    }
-
-</style>
+  <meta charset="UTF-8">
+  <title>Σενάριο – Πτώση Αυτόματης Ασφάλειας</title>
+  <script src="../learningFlow.js"></script>
+  <script src="../auth.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f7fa; padding:30px; text-align:center; }
+    .panel { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1); max-width:500px; margin:30px auto; }
+    .breaker { font-size:80px; margin:20px 0; cursor:pointer; transition:0.3s; }
+    .breaker.tripped { filter:grayscale(1) brightness(0.6); }
+    button { margin-top:10px; padding:8px 15px; cursor:pointer; border:none; border-radius:5px; background:#1e90ff; color:white; font-weight:bold; }
+    .message { margin-top:20px; font-weight:bold; }
+    .correct { color:green; }
+    .info { background:#fff; padding:20px; margin-top:30px; border-left:5px solid #007acc; border-radius:5px; max-width:700px; margin-left:auto; margin-right:auto; text-align:left; }
+    .top-nav { display:flex; justify-content:space-between; margin-bottom:20px; }
+    .top-nav button { padding:8px 16px; border-radius:6px; font-size:14px; }
+  </style>
 </head>
 <body>
-
 <div class="top-nav">
   <button onclick="goHome()">🏠 Αρχική</button>
   <button onclick="goScenarios()">🔙 Σενάρια</button>
 </div>
+<h1>Σενάριο – Πτώση Αυτόματης Ασφάλειας</h1>
+<p>Η ασφάλεια έπεσε μόλις ενεργοποιήθηκε μια συσκευή. Εντοπίστε την αιτία και επαναφέρτε την.</p>
 
-<header>
-<h2>Σενάριο – Πτώση Αυτόματης Ασφάλειας</h2>
-</header>
+<div class="panel">
+  <h3>Ηλεκτρικός Πίνακας</h3>
+  <div class="breaker tripped" id="breaker">⚡</div>
+  <p id="breakerStatus">Ασφάλεια: <b style="color:red">ΠΕΣΜΕΝΗ</b></p>
+  <button onclick="checkCause()">🔍 Έλεγχος Κυκλώματος</button>
+  <button onclick="resetBreaker()" id="resetBtn" style="display:none; background:#388e3c;">
+    🔄 Επαναφορά Ασφάλειας
+  </button>
+</div>
 
-<main>
-  <div class="under-construction">🚧</div>
-  <h1>Under Construction</h1>
-  <p>Η σελίδα είναι υπό κατασκευή.<br>Το σενάριο θα είναι διαθέσιμο σύντομα.</p>
-</main>
+<div id="message" class="message"></div>
 
+<div class="info">
+  <h3>Τι συμβαίνει εδώ;</h3>
+  <p>Η αυτόματη ασφάλεια (MCB) προστατεύει το κύκλωμα από υπερφόρτωση ή βραχυκύκλωμα. Όταν πέσει, πρέπει πρώτα να εντοπιστεί η αιτία και να απομονωθεί η βλάβη πριν την επαναφορά.</p>
+  <p>Σε αυτό το σενάριο, η ασφάλεια έπεσε λόγω υπερφόρτωσης. Αφού γίνει ο έλεγχος, μπορεί να γίνει επαναφορά.</p>
+</div>
+
+<script>
+let checked = false;
+
+function checkCause() {
+  checked = true;
+  document.getElementById("message").innerHTML = 
+    "🔍 Εντοπίστηκε υπερφόρτωση στη γραμμή. Αποσυνδέστε μερικές συσκευές και επαναφέρετε την ασφάλεια.";
+  document.getElementById("message").className = "message";
+  document.getElementById("resetBtn").style.display = "inline-block";
+}
+
+function resetBreaker() {
+  if(!checked) { 
+    document.getElementById("message").innerText = "⚠️ Ελέγξτε πρώτα την αιτία!"; 
+    return; 
+  }
+  document.getElementById("breaker").classList.remove("tripped");
+  document.getElementById("breakerStatus").innerHTML = "Ασφάλεια: <b style='color:green'>ΕΝΕΡΓΗ</b>";
+  document.getElementById("message").innerHTML = `
+    ✅ Η ασφάλεια επανήλθε. Το κύκλωμα λειτουργεί κανονικά.
+    <br><br>
+    <button onclick="completeScenario()" style="
+      background:#388e3c; color:white; border:none;
+      padding:10px 20px; border-radius:6px; cursor:pointer;
+      font-size:15px; margin-top:10px;">
+      ✅ Ολοκλήρωση Σεναρίου
+    </button>
+  `;
+  document.getElementById("message").className = "message correct";
+}
+
+function completeScenario() {
+  if(typeof completeHomeworkStep === "function") {
+    completeHomeworkStep("scenario_breaker-trip");
+  }
+  setTimeout(() => { window.location.href = "scenarios.html"; }, 1500);
+}
+
+function goHome() { window.location.href = "../index.html"; }
+function goScenarios() { window.location.href = "scenarios.html"; }
+</script>
 </body>
 </html>
