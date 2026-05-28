@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <meta charset="UTF-8">
 <title>Σενάριο – Συνδεσμολογία Πρίζας</title>
 
@@ -282,11 +284,28 @@ function check() {
     isConnected("tNeutral","sockN") &&
     isConnected("tEarth","sockPE");
 
-  msg.innerText = ok
-    ? "✅ Σωστή συνδεσμολογία πρίζας."
-    : "❌ Λάθος ή ελλιπής συνδεσμολογία.";
-
+  if(ok) {
+    msg.innerHTML = `
+      ✅ Σωστή συνδεσμολογία πρίζας.
+      <br><br>
+      <button onclick="completeScenario()" style="
+        background:#388e3c; color:white; border:none;
+        padding:10px 20px; border-radius:6px; cursor:pointer;
+        font-size:15px; margin-top:10px;">
+        ✅ Ολοκλήρωση Σεναρίου
+      </button>
+    `;
+  } else {
+    msg.innerText = "❌ Λάθος ή ελλιπής συνδεσμολογία.";
+  }
   document.getElementById("whyBtn").style.display = "inline-block";
+}
+
+function completeScenario() {
+  if(typeof completeHomeworkStep === "function") {
+    completeHomeworkStep("scenario_socket");
+  }
+  setTimeout(() => { window.location.href = "scenarios.html"; }, 1500);
 }
 
 function toggleTheory() {
