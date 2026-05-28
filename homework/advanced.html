@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <meta charset="UTF-8">
 <title>Προχωρημένες Ασκήσεις</title>
 
@@ -64,8 +66,6 @@ header{
   border-radius:5px;
 }
 
-.answers input{ margin-right:10px; }
-
 .answers select{
   margin:5px 0 15px 0;
   padding:5px;
@@ -106,6 +106,16 @@ button{
 .navigation button.skipped{ background:#f39c12; }
 .navigation button.current{ border:2px solid #1976d2; }
 
+#resultBox{
+  display:none;
+  max-width:700px;
+  margin:40px auto;
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  text-align:center;
+}
+
 .correct{
   border:2px solid #2ecc71 !important;
   background:#eafaf1 !important;
@@ -116,14 +126,8 @@ button{
   background:#fdecea !important;
 }
 
-#resultBox{
+#finalSubmitBtn{
   display:none;
-  max-width:700px;
-  margin:40px auto;
-  background:white;
-  padding:25px;
-  border-radius:10px;
-  text-align:center;
 }
 </style>
 </head>
@@ -167,7 +171,6 @@ button{
   font-size:16px;
   border:none;
   border-radius:6px;
-  display:none;
 ">
   🔒 Submit All & Finish
 </button>
@@ -177,7 +180,20 @@ button{
   <p id="finalTime"></p>
   <p id="finalScore"></p>
   <p id="finalMessage"></p>
+
+  <div id="practiceActions" style="display:none; margin-top:20px;">
+    <button onclick="goHome()" style="background:#1976d2;color:white;">
+      Ολοκλήρωση
+    </button>
+    <button onclick="showReview()" style="background:#2ecc71;color:white;">
+      📖 Έξτρα Μελέτη
+    </button>
+  </div>
 </div>
+
+<!-- REVIEW CARDS -->
+<div id="reviewBox" style="display:none; max-width:900px; margin:30px auto;"></div>
+
 
 <script>
 
@@ -186,137 +202,113 @@ button{
 const questions = [
 
 {
-type:"group_tf",
-q:"ΣΩΣΤΟ ή ΛΑΘΟΣ;",
-img:"../images/advanced/q1.jpg",
-statements:[
-["Σε παράλληλη σύνδεση λαμπών, αν καεί μία λάμπα οι υπόλοιπες συνεχίζουν να λειτουργούν.",true],
-["Σε σύνδεση σε σειρά η τάση μοιράζεται στα φορτία.",true],
-["Βραχυκύκλωμα συμβαίνει όταν η φάση έρθει σε άμεση επαφή με τον ουδέτερο.",true],
-["Η γείωση χρησιμοποιείται για να μεταφέρει το κανονικό ρεύμα λειτουργίας.",false],
-["Η ασφάλεια προστατεύει το κύκλωμα από υπερβολικό ρεύμα.",true],
-["Ο διακόπτης πρέπει να διακόπτει τον ουδέτερο και όχι την φάση.",false]
-]
+  type:"group_tf",
+  q:"ΣΩΣΤΟ ή ΛΑΘΟΣ;",
+  img:"../images/advanced/q1.jpg",
+  statements:[
+    ["Σε παράλληλη σύνδεση λαμπών, αν καεί μία λάμπα οι υπόλοιπες συνεχίζουν να λειτουργούν.",true],
+    ["Σε σύνδεση σε σειρά η τάση μοιράζεται στα φορτία.",true],
+    ["Βραχυκύκλωμα συμβαίνει όταν η φάση έρθει σε άμεση επαφή με τον ουδέτερο.",true],
+    ["Η γείωση χρησιμοποιείται για να μεταφέρει το κανονικό ρεύμα λειτουργίας.",false],
+    ["Η ασφάλεια προστατεύει το κύκλωμα από υπερβολικό ρεύμα.",true],
+    ["Ο διακόπτης πρέπει να διακόπτει τον ουδέτερο και όχι την φάση.",false]
+  ],
+  feedback:"Ο διακόπτης πρέπει πάντα να διακόπτει τη φάση για λόγους ασφαλείας. Η γείωση δεν μεταφέρει κανονικό ρεύμα λειτουργίας αλλά χρησιμεύει μόνο σε βλάβη."
 },
 
 {
-type:"fill",
-q:"Συμπλήρωση κενών",
-img:"../images/advanced/q2.jpg",
-lines:[
-["Σε παράλληλη σύνδεση όλα τα φορτία έχουν την ίδια ________. ",["τάση"]],
-["Σε σύνδεση σε σειρά το ίδιο ________ περνά από όλα τα φορτία.",["ρεύμα"]],
-["Η ________ προστατεύει το κύκλωμα από υπερφόρτωση.",["ασφάλεια"]],
-["Το ________ διακόπτει το ρεύμα σε περίπτωση διαρροής προς γη.",["ρελέ"]],
-["Η ________ χρησιμοποιείται για την προστασία του χρήστη από ηλεκτροπληξία.",["γείωση"]]
-],
-bank:["τάση","ρεύμα","ασφάλεια","ρελέ","γείωση"]
+  type:"fill",
+  q:"Συμπλήρωση κενών",
+  img:"../images/advanced/q2.jpg",
+  lines:[
+    ["Σε παράλληλη σύνδεση όλα τα φορτία έχουν την ίδια ________. ",["τάση"]],
+    ["Σε σύνδεση σε σειρά το ίδιο ________ περνά από όλα τα φορτία.",["ρεύμα"]],
+    ["Η ________ προστατεύει το κύκλωμα από υπερφόρτωση.",["ασφάλεια"]],
+    ["Το ________ διακόπτει το ρεύμα σε περίπτωση διαρροής προς γη.",["ρελέ"]],
+    ["Η ________ χρησιμοποιείται για την προστασία του χρήστη από ηλεκτροπληξία.",["γείωση"]]
+  ],
+  bank:["τάση","ρεύμα","ασφάλεια","ρελέ","γείωση"],
+  feedback:"Στην παράλληλη σύνδεση η τάση είναι ίδια παντού. Στη σύνδεση σε σειρά το ρεύμα είναι κοινό. Η ασφάλεια και το ρελέ διαρροής αποτελούν τα δύο βασικά μέσα προστασίας."
 },
 
 {
-type:"matching",
-q:"Αντιστοίχιση στοιχείων με τη λειτουργία τους",
-img:"../images/advanced/q3.jpg",
-pairs:[
-["Ασφάλεια","Προστασία από υπερφόρτωση"],
-["Ρελέ διαρροής","Προστασία από διαρροή ρεύματος"],
-["Διακόπτης","Έλεγχος λειτουργίας κυκλώματος"],
-["Γείωση","Προστασία από ηλεκτροπληξία"]
-]
+  type:"matching",
+  q:"Αντιστοίχιση στοιχείων με τη λειτουργία τους",
+  img:"../images/advanced/q3.jpg",
+  pairs:[
+    ["Ασφάλεια","Προστασία από υπερφόρτωση"],
+    ["Ρελέ διαρροής","Προστασία από διαρροή ρεύματος"],
+    ["Διακόπτης","Έλεγχος λειτουργίας κυκλώματος"],
+    ["Γείωση","Προστασία από ηλεκτροπληξία"]
+  ],
+  feedback:"Κάθε στοιχείο της εγκατάστασης έχει συγκεκριμένο ρόλο: η ασφάλεια για υπερφόρτωση, το ρελέ για διαρροές, ο διακόπτης για έλεγχο και η γείωση για ασφάλεια του χρήστη."
 },
 
 {
-type:"mcq",
-q:"Σε ένα κύκλωμα φωτισμού σπιτιού οι λάμπες συνδέονται συνήθως:",
-img:"../images/advanced/q4.jpg",
-a:[
-"Παράλληλα",
-"Σε σειρά",
-"Τυχαία",
-"Μικτή σύνδεση"
-],
-correct:0
+  type:"mcq",
+  q:"Σε ένα κύκλωμα φωτισμού σπιτιού οι λάμπες συνδέονται συνήθως:",
+  img:"../images/advanced/q4.jpg",
+  a:["Παράλληλα","Σε σειρά","Τυχαία","Μικτή σύνδεση"],
+  correct:0,
+  feedback:"Στα οικιακά κυκλώματα φωτισμού οι λάμπες συνδέονται παράλληλα ώστε η βλάβη μίας να μην επηρεάζει τις υπόλοιπες και η τάση να είναι σταθερή σε κάθε λάμπα."
 },
 
 {
-type:"mcq",
-q:"Τι συμβαίνει σε ένα κύκλωμα όταν προκύψει βραχυκύκλωμα;",
-img:"../images/advanced/q5.jpg",
-a:[
-"Το ρεύμα αυξάνεται απότομα",
-"Η τάση μηδενίζεται",
-"Το κύκλωμα λειτουργεί κανονικά",
-"Η κατανάλωση μειώνεται"
-],
-correct:0
+  type:"mcq",
+  q:"Τι συμβαίνει σε ένα κύκλωμα όταν προκύψει βραχυκύκλωμα;",
+  img:"../images/advanced/q5.jpg",
+  a:["Το ρεύμα αυξάνεται απότομα","Η τάση μηδενίζεται","Το κύκλωμα λειτουργεί κανονικά","Η κατανάλωση μειώνεται"],
+  correct:0,
+  feedback:"Σε βραχυκύκλωμα η αντίσταση του κυκλώματος γίνεται σχεδόν μηδενική, οπότε το ρεύμα αυξάνεται απότομα σύμφωνα με τον νόμο του Ohm (I = V/R)."
 },
 
 {
-type:"mcq",
-q:"Ποιος είναι ο κύριος σκοπός της γείωσης σε μια εγκατάσταση;",
-img:"../images/advanced/q6.jpg",
-a:[
-"Να προστατεύει τον χρήστη από ηλεκτροπληξία",
-"Να αυξάνει την τάση",
-"Να μειώνει το ρεύμα",
-"Να λειτουργεί ως ουδέτερος"
-],
-correct:0
+  type:"mcq",
+  q:"Ποιος είναι ο κύριος σκοπός της γείωσης σε μια εγκατάσταση;",
+  img:"../images/advanced/q6.jpg",
+  a:["Να προστατεύει τον χρήστη από ηλεκτροπληξία","Να αυξάνει την τάση","Να μειώνει το ρεύμα","Να λειτουργεί ως ουδέτερος"],
+  correct:0,
+  feedback:"Η γείωση εκτρέπει τυχόν ρεύμα διαρροής προς τη γη αντί να περάσει από το σώμα του χρήστη, αποτρέποντας έτσι τον κίνδυνο ηλεκτροπληξίας."
 },
 
 {
-type:"mcq",
-q:"Σε ένα κύκλωμα αλερετούρ, πόσοι διακόπτες ελέγχουν μία λάμπα;",
-img:"../images/advanced/q7.jpg",
-a:[
-"Δύο",
-"Ένας",
-"Τρεις",
-"Τέσσερις"
-],
-correct:0
+  type:"mcq",
+  q:"Σε ένα κύκλωμα αλερετούρ, πόσοι διακόπτες ελέγχουν μία λάμπα;",
+  img:"../images/advanced/q7.jpg",
+  a:["Δύο","Ένας","Τρεις","Τέσσερις"],
+  correct:0,
+  feedback:"Το κύκλωμα αλερετούρ χρησιμοποιεί τουλάχιστον δύο διακόπτες τύπου κομιτατέρ για τον έλεγχο ενός φωτιστικού από δύο διαφορετικά σημεία."
 },
 
 {
-type:"mcq",
-q:"Ποια συσκευή προστασίας ενεργοποιείται όταν υπάρχει διαρροή ρεύματος προς τη γείωση;",
-img:"../images/advanced/q8.jpg",
-a:[
-"Ρελέ διαρροής",
-"Ασφάλεια",
-"Διακόπτης",
-"Μετασχηματιστής"
-],
-correct:0
+  type:"mcq",
+  q:"Ποια συσκευή προστασίας ενεργοποιείται όταν υπάρχει διαρροή ρεύματος προς τη γείωση;",
+  img:"../images/advanced/q8.jpg",
+  a:["Ρελέ διαρροής","Ασφάλεια","Διακόπτης","Μετασχηματιστής"],
+  correct:0,
+  feedback:"Το ρελέ διαρροής (RCD) ανιχνεύει τη διαφορά ρεύματος μεταξύ φάσης και ουδέτερου. Αν υπάρχει διαρροή, αποκόπτει αμέσως το κύκλωμα."
 },
 
 {
-type:"mcq",
-q:"Τι προκαλεί υπερφόρτωση σε μια γραμμή;",
-img:"../images/advanced/q9.jpg",
-a:[
-"Πολλές συσκευές στην ίδια γραμμή",
-"Χαμηλή τάση",
-"Κακή γείωση",
-"Ανοιχτό κύκλωμα"
-],
-correct:0
+  type:"mcq",
+  q:"Τι προκαλεί υπερφόρτωση σε μια γραμμή;",
+  img:"../images/advanced/q9.jpg",
+  a:["Πολλές συσκευές στην ίδια γραμμή","Χαμηλή τάση","Κακή γείωση","Ανοιχτό κύκλωμα"],
+  correct:0,
+  feedback:"Όταν πολλές συσκευές συνδεθούν στην ίδια γραμμή, το συνολικό ρεύμα υπερβαίνει την ονομαστική ικανότητα αγωγής του καλωδίου, προκαλώντας υπερφόρτωση."
 },
 
 {
-type:"mcq",
-q:"Σε περίπτωση πτώσης της ασφάλειας πρέπει πρώτα:",
-img:"../images/advanced/q10.jpg",
-a:[
-"Να ελεγχθεί το κύκλωμα για βλάβη",
-"Να επαναφέρουμε την ασφάλεια αμέσως",
-"Να αντικαταστήσουμε την πρίζα",
-"Να αλλάξουμε τον διακόπτη"
-],
-correct:0
+  type:"mcq",
+  q:"Σε περίπτωση πτώσης της ασφάλειας πρέπει πρώτα:",
+  img:"../images/advanced/q10.jpg",
+  a:["Να ελεγχθεί το κύκλωμα για βλάβη","Να επαναφέρουμε την ασφάλεια αμέσως","Να αντικαταστήσουμε την πρίζα","Να αλλάξουμε τον διακόπτη"],
+  correct:0,
+  feedback:"Η ασφάλεια πέφτει για κάποιο λόγο — υπερφόρτωση ή βραχυκύκλωμα. Πριν την επαναφορά, πρέπει πρώτα να εντοπιστεί και να διορθωθεί η αιτία."
 }
 
 ];
+
 /* ================= ΜΗΧΑΝΙΣΜΟΣ  ================= */
 
 let currentQuestion = 0;
@@ -332,52 +324,56 @@ let reviewMode = false;
 let timeLeft = 600;
 
 function shuffleArray(array){
-  const arr=[...array];
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+  const arr = [...array];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
 }
 
+function finalSubmit(){
+  if(answers.includes(null)){
+    alert("Υπάρχουν αναπάντητες ερωτήσεις!");
+    return;
+  }
+
+  const confirmSubmit = confirm("Η τελική υποβολή θα κλειδώσει τις απαντήσεις σου και θα βαθμολογηθούν ΜΟΝΟ αυτές. Συνεχίζεις;");
+  if(!confirmSubmit) return;
+
+  document.querySelectorAll("input, select, button").forEach(el => {
+    el.disabled = true;
+  });
+
+  finishQuiz();
+}
+
 function startQuiz(selectedMode){
-
   mode = selectedMode;
-
   document.getElementById("modeSelection").style.display = "none";
   document.getElementById("quizBox").style.display = "block";
 
   if(mode === "exam"){
-
     document.getElementById("finalSubmitBtn").style.display = "block";
 
-    // shuffle ερωτήσεων + μόνο για mcq shuffle answers
+    // Shuffle ερωτήσεων + shuffle απαντήσεων MCQ
     quizQuestions = shuffleArray(questions).map(q => {
-
       if(q.type === "mcq"){
-
         const answersWithIndex = q.a.map((text, index) => ({
           text,
           isCorrect: index === q.correct
         }));
-
         const shuffledAnswers = shuffleArray(answersWithIndex);
-
         return {
           ...q,
           a: shuffledAnswers.map(x => x.text),
           correct: shuffledAnswers.findIndex(x => x.isCorrect)
         };
       }
-
       return {...q};
     });
 
-    timeLeft = 600;
-    startTimer();
-
-  }else{
-
+  } else {
     document.getElementById("finalSubmitBtn").style.display = "none";
     quizQuestions = [...questions];
     document.getElementById("timer").innerText = "";
@@ -386,26 +382,28 @@ function startQuiz(selectedMode){
   answers = new Array(quizQuestions.length).fill(null);
   skipped = new Array(quizQuestions.length).fill(false);
   evaluated = new Array(quizQuestions.length).fill(false);
-
   currentQuestion = 0;
   score = 0;
-  startTime = Date.now();
+  timeLeft = 600;
+
+  if(mode === "exam"){
+    startTimer();
+  }
 
   loadQuestion();
 }
 
 function formatTime(sec){
-  const m=Math.floor(sec/60);
-  const s=sec%60;
-  if(m===0) return s+" δευτερόλεπτα";
-  return m+" λεπτά και "+s+" δευτερόλεπτα";
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  if(m === 0) return s + " δευτερόλεπτα";
+  return m + " λεπτά και " + s + " δευτερόλεπτα";
 }
 
 function startTimer(){
-  if (timerInterval) clearInterval(timerInterval);
+  if(timerInterval) clearInterval(timerInterval);
 
-  timerInterval = setInterval(()=>{
-
+  timerInterval = setInterval(() => {
     const m = Math.floor(timeLeft / 60);
     const s = timeLeft % 60;
 
@@ -418,76 +416,93 @@ function startTimer(){
       clearInterval(timerInterval);
       finishQuiz();
     }
-
-  },1000);
+  }, 1000);
 }
 
 function loadQuestion(){
-  const q=quizQuestions[currentQuestion];
+  const q = quizQuestions[currentQuestion];
 
-  document.getElementById("questionCounter").innerText=
-    `Ερώτηση ${currentQuestion+1} / ${quizQuestions.length}`;
+  document.getElementById("questionCounter").innerText =
+    `Ερώτηση ${currentQuestion + 1} / ${quizQuestions.length}`;
 
-  document.getElementById("questionText").innerText=q.q;
-  document.getElementById("questionImage").src=q.img || "";
+  document.getElementById("questionText").innerText = q.q;
+  document.getElementById("questionImage").src = q.img || "";
 
-  const box=document.getElementById("answersBox");
-  box.innerHTML="";
+  const box = document.getElementById("answersBox");
+  box.innerHTML = "";
 
-  if(q.type==="group_tf"){
-    q.statements.forEach((s,i)=>{
-      const div=document.createElement("div");
+  /* ================= TRUE FALSE ================= */
+  if(q.type === "group_tf"){
+    const saved = answers[currentQuestion];
+
+    q.statements.forEach((s, i) => {
+      const selected = saved ? saved[i] : "";
+      const div = document.createElement("div");
       div.innerHTML = `
         ${s[0]}<br>
         <select data-index="${i}">
           <option value="">Επιλογή</option>
-          <option value="true">Σωστό</option>
-          <option value="false">Λάθος</option>
+          <option value="true" ${selected === "true" ? "selected" : ""}>Σωστό</option>
+          <option value="false" ${selected === "false" ? "selected" : ""}>Λάθος</option>
         </select><br><br>
       `;
       box.appendChild(div);
     });
   }
 
-  if(q.type==="fill"){
+  /* ================= FILL ================= */
+  if(q.type === "fill"){
     let html = "";
-    q.lines.forEach(line=>{
-        let text = line[0];
-        text = text.replace(/_+/g, () => {
-            const options = shuffleArray(q.bank)
-              .map(w=>`<option value="${w}">${w}</option>`)
-              .join("");
-            return `<select class="fill-select"><option value="">Επιλογή</option>${options}</select>`;
-        });
-        html += text + "<br><br>";
+    const saved = answers[currentQuestion] || [];
+    let saveIndex = 0;
+
+    q.lines.forEach(line => {
+      let text = line[0];
+
+      text = text.replace(/_+/g, () => {
+        const selectedVal = saved[saveIndex] || "";
+        const options = shuffleArray(q.bank)
+          .map(w => `<option value="${w}" ${w === selectedVal ? "selected" : ""}>${w}</option>`)
+          .join("");
+        saveIndex++;
+        return `<select class="fill-select">
+          <option value="">Επιλογή</option>
+          ${options}
+        </select>`;
+      });
+
+      html += text + "<br><br>";
     });
+
     box.innerHTML = html;
   }
 
-  if(q.type==="matching"){
-    q.pairs.forEach((p,i)=>{
-      box.innerHTML+=`
+  /* ================= MATCHING ================= */
+  if(q.type === "matching"){
+    const saved = answers[currentQuestion];
+
+    q.pairs.forEach((p, i) => {
+      const selectedVal = saved ? saved[i] : "";
+      box.innerHTML += `
       ${p[0]} :
       <select data-index="${i}">
         <option value="">Επιλογή</option>
-        ${q.pairs.map(x=>`<option value="${x[1]}">${x[1]}</option>`).join("")}
+        ${q.pairs.map(x => `<option value="${x[1]}" ${x[1] === selectedVal ? "selected" : ""}>${x[1]}</option>`).join("")}
       </select><br><br>`;
     });
   }
 
-  if(q.type==="mcq"){
-  q.a.forEach((opt,i)=>{
-
-    const checked = answers[currentQuestion] === i ? "checked" : "";
-    const disabled = (mode === "practice" && answers[currentQuestion] !== null) ? "disabled" : "";
-
-    box.innerHTML+=`
-    <label>
-    <input type="radio" name="answer" value="${i}" ${checked} ${disabled}>
-    ${opt}
-    </label>`;
-  });
-}
+  /* ================= MCQ ================= */
+  if(q.type === "mcq"){
+    q.a.forEach((opt, i) => {
+      const checked = answers[currentQuestion] === i ? "checked" : "";
+      box.innerHTML += `
+      <label>
+        <input type="radio" name="answer" value="${i}" ${checked}>
+        ${opt}
+      </label>`;
+    });
+  }
 
   updateProgress();
   renderNavigation();
@@ -497,84 +512,75 @@ function submitAnswer(){
   const q = quizQuestions[currentQuestion];
   let correct = true;
 
-  // καθάρισμα χρωμάτων (ΜΟΝΟ practice)
   if(mode === "practice"){
-    document.querySelectorAll("select, label").forEach(el=>{
-      el.classList.remove("correct","wrong");
+    document.querySelectorAll("select, label").forEach(el => {
+      el.classList.remove("correct", "wrong");
     });
   }
 
   /* ================= MCQ ================= */
-  if(q.type==="mcq"){
-  const selected=document.querySelector('input[name="answer"]:checked');
-  if(!selected) return alert("Επίλεξε απάντηση!");
+  if(q.type === "mcq"){
+    const selected = document.querySelector('input[name="answer"]:checked');
+    if(!selected) return alert("Επίλεξε απάντηση!");
 
-  const value = parseInt(selected.value);
-  answers[currentQuestion] = value;
+    answers[currentQuestion] = parseInt(selected.value);
 
-  if(mode === "practice"){
-
-    const labels=document.querySelectorAll(".answers label");
-
-    labels.forEach((lab,i)=>{
-      if(i===q.correct) lab.classList.add("correct");
-
-      if(i===value && i!==q.correct){
-        lab.classList.add("wrong");
-        correct=false;
-      }
-    });
-
-    if(!correct) return;
+    if(mode === "practice"){
+      const labels = document.querySelectorAll(".answers label");
+      labels.forEach((lab, i) => {
+        if(i === q.correct) lab.classList.add("correct");
+        if(selected.value == i && i !== q.correct){
+          lab.classList.add("wrong");
+          correct = false;
+        }
+      });
+    }
   }
-}
 
   /* ================= TRUE FALSE ================= */
-  if(q.type==="group_tf"){
-    const selects=document.querySelectorAll("select");
-    if([...selects].some(s=>s.value==="")) return alert("Συμπλήρωσε όλα τα πεδία!");
+  if(q.type === "group_tf"){
+    const selects = document.querySelectorAll("select");
+    if([...selects].some(s => s.value === "")) return alert("Συμπλήρωσε όλα τα πεδία!");
 
-    const userAnswers = [...selects].map(s=>s.value);
+    const userAnswers = [...selects].map(s => s.value);
     answers[currentQuestion] = userAnswers;
 
     if(mode === "practice"){
-      selects.forEach((s,i)=>{
-        if(String(q.statements[i][1])===s.value){
+      selects.forEach((s, i) => {
+        if(String(q.statements[i][1]) === s.value){
           s.classList.add("correct");
-        }else{
+        } else {
           s.classList.add("wrong");
-          correct=false;
+          correct = false;
         }
       });
     }
   }
 
   /* ================= FILL ================= */
-  if(q.type==="fill"){
-    const selects=document.querySelectorAll(".fill-select");
-
+  if(q.type === "fill"){
+    const selects = document.querySelectorAll(".fill-select");
     if([...selects].some(s => s.value === "")){
       alert("Συμπλήρωσε όλα τα πεδία!");
       return;
     }
 
-    let index=0;
-    const userAnswers=[];
+    let index = 0;
+    const userAnswers = [];
 
-    q.lines.forEach(line=>{
-      line[1].forEach(word=>{
+    q.lines.forEach(line => {
+      line[1].forEach(word => {
         const val = selects[index].value;
         userAnswers.push(val);
 
         if(mode === "practice"){
-          if(val===word){
+          if(val === word){
             selects[index].classList.add("correct");
-          }else{
+          } else {
             selects[index].classList.add("wrong");
-            correct=false;
+            correct = false;
           }
         }
-
         index++;
       });
     });
@@ -583,49 +589,45 @@ function submitAnswer(){
   }
 
   /* ================= MATCHING ================= */
-  if(q.type==="matching"){
-    const selects=document.querySelectorAll("select");
+  if(q.type === "matching"){
+    const selects = document.querySelectorAll("select");
+    if([...selects].some(s => s.value === "")) return alert("Συμπλήρωσε όλα τα πεδία!");
 
-    if([...selects].some(s=>s.value==="")) return alert("Συμπλήρωσε όλα τα πεδία!");
-
-    const userAnswers = [...selects].map(s=>s.value);
+    const userAnswers = [...selects].map(s => s.value);
     answers[currentQuestion] = userAnswers;
 
     if(mode === "practice"){
-      selects.forEach((s,i)=>{
-        if(s.value===q.pairs[i][1]){
+      selects.forEach((s, i) => {
+        if(s.value === q.pairs[i][1]){
           s.classList.add("correct");
-        }else{
+        } else {
           s.classList.add("wrong");
-          correct=false;
+          correct = false;
         }
       });
     }
   }
 
   /* ================= LOGIC ================= */
-
-  // PRACTICE → δεν προχωράει αν είναι λάθος
   if(mode === "practice"){
     if(!correct) return;
     nextStep();
     return;
   }
 
-  // EXAM → ΠΑΝΤΑ προχωράει
   if(mode === "exam"){
     nextStep();
   }
 }
 
 function skipQuestion(){
-  if(answers[currentQuestion]===null)
-    skipped[currentQuestion]=true;
+  if(answers[currentQuestion] === null)
+    skipped[currentQuestion] = true;
   nextStep();
 }
 
 function nextStep(){
-  const nextUnanswered = answers.findIndex((a,i) => a === null && i > currentQuestion);
+  const nextUnanswered = answers.findIndex((a, i) => a === null && i > currentQuestion);
 
   if(nextUnanswered !== -1){
     currentQuestion = nextUnanswered;
@@ -645,7 +647,6 @@ function nextStep(){
 }
 
 function attemptFinish(){
-
   if(mode === "practice"){
     finishQuiz();
     return;
@@ -660,25 +661,19 @@ function attemptFinish(){
 
   if(choice){
     finishQuiz();
-  }else{
+  } else {
     const firstAnswered = answers.findIndex(a => a !== null);
     currentQuestion = firstAnswered !== -1 ? firstAnswered : 0;
     loadQuestion();
   }
 }
 
-function finishQuiz(){
-  clearInterval(timerInterval);
-
-  document.getElementById("quizBox").style.display="none";
-  document.getElementById("resultBox").style.display="block";
-  document.getElementById("finalSubmitBtn").style.display = "none";
-
+function calculateFinalScore(){
   let totalScore = 0;
 
-  quizQuestions.forEach((q, i) => {
-
-    const ans = answers[i];
+  quizQuestions.forEach((q, index) => {
+    const ans = answers[index];
+    if(ans === null) return;
 
     if(q.type === "mcq"){
       if(ans === q.correct) totalScore++;
@@ -686,25 +681,17 @@ function finishQuiz(){
 
     if(q.type === "group_tf"){
       let correctCount = 0;
-
-      ans.forEach((val,j)=>{
-        if(String(q.statements[j][1]) === val){
-          correctCount++;
-        }
+      ans.forEach((val, i) => {
+        if(String(q.statements[i][1]) === val) correctCount++;
       });
-
       totalScore += (correctCount / q.statements.length);
     }
 
     if(q.type === "matching"){
       let correctCount = 0;
-
-      ans.forEach((val,j)=>{
-        if(val === q.pairs[j][1]){
-          correctCount++;
-        }
+      ans.forEach((val, i) => {
+        if(val === q.pairs[i][1]) correctCount++;
       });
-
       totalScore += (correctCount / q.pairs.length);
     }
 
@@ -712,127 +699,252 @@ function finishQuiz(){
       let index2 = 0;
       let correctCount = 0;
       let total = 0;
-
-      q.lines.forEach(line=>{
-        line[1].forEach(word=>{
-          if(ans[index2] === word){
-            correctCount++;
-          }
+      q.lines.forEach(line => {
+        line[1].forEach(word => {
+          if(ans[index2] === word) correctCount++;
           total++;
           index2++;
         });
       });
-
       totalScore += (correctCount / total);
     }
-
   });
 
-  let percent = (totalScore / quizQuestions.length) * 100;
+  return totalScore;
+}
 
-  document.getElementById("finalScore").innerText =
-    `Βαθμολογία: ${percent.toFixed(2)}%`;
+function finishQuiz(){
+  clearInterval(timerInterval);
 
-const msg = document.getElementById("finalMessage");
+  document.getElementById("quizBox").style.display = "none";
+  document.getElementById("resultBox").style.display = "block";
+  document.getElementById("finalSubmitBtn").style.display = "none";
 
-if (mode === "exam") {
+  let percent = 0;
 
-    if (percent >= 85)
-        msg.innerText = "🎉 Εξαιρετική επίδοση! Συνέχισε έτσι.";
-    else if (percent >= 60)
-        msg.innerText = "👍 Καλή προσπάθεια!";
-    else
-        msg.innerText = "📘 Χρειάζεσαι επανάληψη.";
+  if(mode === "exam"){
+    const finalScoreValue = calculateFinalScore();
+    percent = (finalScoreValue / quizQuestions.length) * 100;
+    document.getElementById("finalScore").innerText =
+      `Βαθμολογία: ${percent.toFixed(2)}%`;
 
-    // countdown επιστροφής
+    if(percent === 100){
+      if(typeof completeHomeworkStep === "function"){
+        completeHomeworkStep("advanced");
+      }
+      setTimeout(() => {
+        window.location.href = "../homework/homework.html";
+      }, 3500);
+      return;
+    }
+  } else {
+    document.getElementById("finalScore").innerText = "";
+  }
+
+  const msg = document.getElementById("finalMessage");
+
+  if(percent >= 85)
+    msg.innerText = "🎉 Εξαιρετική επίδοση! Συνέχισε έτσι.";
+  else if(percent >= 60)
+    msg.innerText = "👍 Καλή προσπάθεια! Λίγη επανάληψη θα σε βελτιώσει.";
+  else
+    msg.innerText = "📘 Χρειάζεσαι επανάληψη στην θεωρία.";
+
+  if(mode === "exam"){
     let countdown = 5;
     const baseMessage = msg.innerText;
 
     const countdownInterval = setInterval(() => {
-
-        msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στην αρχική σε ${countdown}...`;
-
-        countdown--;
-
-        if (countdown < 0) {
-            clearInterval(countdownInterval);
-            goHome();
-        }
-
+      msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στην αρχική σε ${countdown}...`;
+      countdown--;
+      if(countdown < 0){
+        clearInterval(countdownInterval);
+        goHome();
+      }
     }, 1000);
+  }
 
-} else {
-
-    document.getElementById("finalTime").innerText = "";
-    document.getElementById("finalScore").innerText = "";
+  if(mode === "practice"){
     msg.innerText = "🎓 Ολοκλήρωσες την εξάσκηση!";
-
-}
-
+    document.getElementById("practiceActions").style.display = "block";
+  }
 }
 
 function updateProgress(){
-  const answeredCount=answers.filter(a=>a!==null).length;
-  const percent=(answeredCount/quizQuestions.length)*100;
-  document.getElementById("progressBar").style.width=percent+"%";
-}
-
-function finalSubmit(){
-
-  if(answers.includes(null)){
-    alert("Υπάρχουν αναπάντητες ερωτήσεις!");
-    return;
-  }
-
-  const confirmSubmit = confirm("Η τελική υποβολή θα κλειδώσει τις απαντήσεις σου. Συνεχίζεις;");
-
-  if(!confirmSubmit) return;
-
-  document.querySelectorAll("input, select, button").forEach(el=>{
-    el.disabled = true;
-  });
-
-  finishQuiz();
+  const answeredCount = answers.filter(a => a !== null).length;
+  const percent = (answeredCount / quizQuestions.length) * 100;
+  document.getElementById("progressBar").style.width = percent + "%";
 }
 
 function renderNavigation(){
-  const nav=document.getElementById("navigation");
-  nav.innerHTML="";
-  quizQuestions.forEach((_,i)=>{
-    const btn=document.createElement("button");
-    btn.innerText=i+1;
+  const nav = document.getElementById("navigation");
+  nav.innerHTML = "";
+  quizQuestions.forEach((_, i) => {
+    const btn = document.createElement("button");
+    btn.innerText = i + 1;
 
-    if(i===currentQuestion) btn.classList.add("current");
-    else if(answers[i]!==null) btn.classList.add("answered");
+    if(i === currentQuestion) btn.classList.add("current");
+    else if(answers[i] !== null) btn.classList.add("answered");
     else if(skipped[i]) btn.classList.add("skipped");
 
-    btn.onclick=()=>{currentQuestion=i;loadQuestion();}
+    btn.onclick = () => { currentQuestion = i; loadQuestion(); };
     nav.appendChild(btn);
   });
 }
 
 function goHome(){
-  location.reload();
+  window.location.href = "../index.html";
 }
 
-</script>if (mode === "exam") {
+function showReview(){
+  document.getElementById("resultBox").style.display = "none";
+  const box = document.getElementById("reviewBox");
+  box.style.display = "block";
+  box.innerHTML = "<h2 style='text-align:center'>📖 Επισκόπηση Ερωτήσεων</h2>";
 
-    let countdown = 5;
+  quizQuestions.forEach((q, index) => {
+    const ans = answers[index];
+    const card = document.createElement("div");
+    card.style.cssText = `
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 5px solid #1976d2;
+    `;
 
-    const baseMessage = msg.innerText;
+    let answerHTML = "";
 
-    const countdownInterval = setInterval(() => {
+    if(q.type === "mcq"){
+      answerHTML = q.a.map((opt, i) => {
+        const isCorrect = i === q.correct;
+        const isSelected = ans === i;
+        let bg = "#f1f1f1";
+        if(isCorrect) bg = "#eafaf1";
+        if(isSelected && !isCorrect) bg = "#fdecea";
+        return `
+          <div style="
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            background: ${bg};
+            border: 1px solid ${isCorrect ? '#2ecc71' : isSelected ? '#e74c3c' : '#ddd'};
+            font-size: 14px;
+          ">
+            ${isCorrect ? '✅' : isSelected ? '❌' : '⬜'} ${opt}
+          </div>`;
+      }).join("");
+    }
 
-        msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στην αρχική σε ${countdown}...`;
+    if(q.type === "group_tf"){
+      answerHTML = q.statements.map((s, i) => {
+        const correct = String(s[1]);
+        const selected = ans ? ans[i] : "";
+        const isRight = selected === correct;
+        return `
+          <div style="
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            background: ${isRight ? '#eafaf1' : '#fdecea'};
+            border: 1px solid ${isRight ? '#2ecc71' : '#e74c3c'};
+            font-size: 14px;
+          ">
+            ${isRight ? '✅' : '❌'} ${s[0]}
+            <span style="color:#777; font-size:12px;">
+              (Σωστό: ${s[1] ? 'Σωστό' : 'Λάθος'}
+              ${!isRight ? `| Απάντησες: ${selected === 'true' ? 'Σωστό' : 'Λάθος'}` : ''})
+            </span>
+          </div>`;
+      }).join("");
+    }
 
-        countdown--;
+    if(q.type === "matching"){
+      answerHTML = q.pairs.map((p, i) => {
+        const selected = ans ? ans[i] : "";
+        const isRight = selected === p[1];
+        return `
+          <div style="
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            background: ${isRight ? '#eafaf1' : '#fdecea'};
+            border: 1px solid ${isRight ? '#2ecc71' : '#e74c3c'};
+            font-size: 14px;
+          ">
+            ${isRight ? '✅' : '❌'} ${p[0]} → ${p[1]}
+            ${!isRight ? `<span style="color:#e74c3c; font-size:12px;">(Απάντησες: ${selected})</span>` : ''}
+          </div>`;
+      }).join("");
+    }
 
-        if (countdown < 0) {
-            clearInterval(countdownInterval);
-            goHome();
-        }
+    if(q.type === "fill"){
+      let fillIndex = 0;
+      answerHTML = q.lines.map(line => {
+        let text = line[0];
+        text = text.replace(/_+/g, () => {
+          const word = line[1][fillIndex % line[1].length];
+          const selected = ans ? ans[fillIndex] : "";
+          const isRight = selected === word;
+          fillIndex++;
+          return `<span style="
+            background: ${isRight ? '#eafaf1' : '#fdecea'};
+            border: 1px solid ${isRight ? '#2ecc71' : '#e74c3c'};
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+          ">${selected || '—'} ${!isRight ? `(✓${word})` : '✅'}</span>`;
+        });
+        return `<div style="font-size:14px; margin: 6px 0;">${text}</div>`;
+      }).join("");
+    }
 
-    }, 1000);
+    const feedbackHTML = q.feedback ? `
+      <div style="
+        margin-top: 14px;
+        padding: 12px;
+        background: #f0f7ff;
+        border-radius: 6px;
+        font-size: 13px;
+        border-left: 3px solid #1976d2;
+      ">
+        <b>💡 Εξήγηση:</b> ${q.feedback}
+        ${q.video ? `<br><a href="${q.video}" target="_blank" style="color:#1976d2;">▶ Βίντεο</a>` : ""}
+        ${q.doc ? `<br><a href="${q.doc}" target="_blank" style="color:#1976d2;">📄 Έγγραφο</a>` : ""}
+      </div>` : "";
+
+    card.innerHTML = `
+      <div style="font-size:13px; color:#888; margin-bottom:6px;">
+        Ερώτηση ${index + 1}
+      </div>
+      <div style="font-weight:bold; margin-bottom:12px; font-size:15px;">
+        ${q.q}
+      </div>
+      ${answerHTML}
+      ${feedbackHTML}
+    `;
+
+    box.appendChild(card);
+  });
+
+  const backBtn = document.createElement("button");
+  backBtn.textContent = "🏠 Επιστροφή στην Αρχική";
+  backBtn.style.cssText = `
+    display: block;
+    margin: 20px auto;
+    padding: 12px 24px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+  `;
+  backBtn.onclick = goHome;
+  box.appendChild(backBtn);
 }
+
+</script>
 </body>
 </html>
