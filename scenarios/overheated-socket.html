@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <meta charset="UTF-8">
 <title>Σενάριο – Υπερθέρμανση Πρίζας</title>
 <style>
@@ -381,10 +383,32 @@ document.querySelectorAll(".terminal").forEach(t=>{
 // σήκωμα ασφάλειας
 function raiseBreaker(){
   if(!socketReplaced){ msgBox.innerText="Πρέπει πρώτα να αντικαταστήσετε την πρίζα."; return }
-  if(!wireStatus.sockL || !wireStatus.sockPE || !wireStatus.sockN){ msgBox.innerText="❌ Πρέπει να συνδέσετε όλα τα καλώδια για να σηκώσετε την ασφάλεια."; return }
-  if(cause==="overload" && !loadReduced){ msgBox.innerText="❌ Πρέπει πρώτα να μειώσετε το φορτίο της πρίζας."; return }
-  msgBox.innerText="⚡ Η ασφάλεια επανήλθε. Το κύκλωμα λειτουργεί."
-  coolDown()
+  if(!wireStatus.sockL || !wireStatus.sockPE || !wireStatus.sockN){ 
+    msgBox.innerText="❌ Πρέπει να συνδέσετε όλα τα καλώδια για να σηκώσετε την ασφάλεια."; 
+    return; 
+  }
+  if(cause==="overload" && !loadReduced){ 
+    msgBox.innerText="❌ Πρέπει πρώτα να μειώσετε το φορτίο της πρίζας."; 
+    return; 
+  }
+  msgBox.innerHTML = `
+    ⚡ Η ασφάλεια επανήλθε. Το κύκλωμα λειτουργεί.
+    <br><br>
+    <button onclick="completeScenario()" style="
+      background:#388e3c; color:white; border:none;
+      padding:10px 20px; border-radius:6px; cursor:pointer;
+      font-size:15px; margin-top:10px;">
+      ✅ Ολοκλήρωση Σεναρίου
+    </button>
+  `;
+  coolDown();
+}
+
+function completeScenario() {
+  if(typeof completeHomeworkStep === "function") {
+    completeHomeworkStep("scenario_overheated-socket");
+  }
+  setTimeout(() => { window.location.href = "scenarios.html"; }, 1500);
 }
 
 // μείωση φορτίου
