@@ -222,19 +222,52 @@
 
 </div>
 
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <script>
-  const viewBtn = document.getElementById("viewBtn");
-  const container = document.getElementById("homeworkContainer");
+const viewBtn = document.getElementById("viewBtn");
+const container = document.getElementById("homeworkContainer");
+viewBtn.addEventListener("click", function () {
+  container.classList.toggle("list-view");
+  viewBtn.textContent = container.classList.contains("list-view")
+    ? "Grid View" : "List View";
+});
 
-  viewBtn.addEventListener("click", function () {
-    container.classList.toggle("list-view");
+function applyHomeworkLocks() {
+  const progress = loadHomeworkProgress();
 
-    if (container.classList.contains("list-view")) {
-      viewBtn.textContent = "Grid View";
+  const cards = [
+    { el: document.querySelector(".bar-blue"),   key: "basic" },
+    { el: document.querySelector(".bar-green"),  key: "advanced" },
+    { el: document.querySelector(".bar-orange"), key: "scenario_burned-lamp" },
+    { el: document.querySelector(".bar-purple"), key: "quiz1" }
+  ];
+
+  cards.forEach(({ el, key }) => {
+    if (!el) return;
+    const unlocked = progress.unlocked[key] === true;
+    const btn = el.querySelector("button");
+    if (!unlocked) {
+      el.style.opacity = "0.4";
+      el.style.filter = "grayscale(1)";
+      if (btn) {
+        btn.disabled = true;
+        btn.style.cursor = "not-allowed";
+        btn.textContent = "🔒 Κλειδωμένο";
+      }
     } else {
-      viewBtn.textContent = "List View";
+      el.style.opacity = "";
+      el.style.filter = "";
+      if (btn) {
+        btn.disabled = false;
+        btn.style.cursor = "";
+      }
     }
   });
+}
+
+applyHomeworkLocks();
+window.addEventListener("homeworkUpdated", applyHomeworkLocks);
 </script>
 
 </body>
