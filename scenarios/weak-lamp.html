@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
   <meta charset="UTF-8">
   <title>Σενάριο Βλάβης – Αστοχία Λάμπας</title>
   <link rel="stylesheet" href="../style.css">
@@ -174,22 +176,28 @@
   }, 400);
 
   function replaceLamp() {
-    lamp.classList.remove("weak");
-    lamp.classList.add("on");
-    message.innerHTML = "✔️ Η λάμπα αντικαταστάθηκε. Ο φωτισμός είναι πλέον κανονικός.";
-    message.className = "message correct";
+  lamp.classList.remove("weak");
+  lamp.classList.add("on");
+  ammeter.innerText = "Ρεύμα: 0.8A";
+  message.innerHTML = `
+    ✔️ Η λάμπα αντικαταστάθηκε. Ο φωτισμός είναι πλέον κανονικός.
+    <br><br>
+    <button onclick="completeScenario()" style="
+      background:#388e3c; color:white; border:none;
+      padding:10px 20px; border-radius:6px; cursor:pointer;
+      font-size:15px; margin-top:10px;">
+      ✅ Ολοκλήρωση Σεναρίου
+    </button>
+  `;
+  message.className = "message correct";
+}
 
-    // Ρεύμα κανονικό
-    ammeter.innerText = "Ρεύμα: 0.8A";
+function completeScenario() {
+  if(typeof completeHomeworkStep === "function") {
+    completeHomeworkStep("scenario_weak-lamp");
   }
-
-  function goHome(){
-    window.location.href = "../index.html";
-  }
-
-  function goScenarios(){
-    window.location.href = "scenarios.html";
-  }
+  setTimeout(() => { window.location.href = "scenarios.html"; }, 1500);
+}
 
 </script>
 
