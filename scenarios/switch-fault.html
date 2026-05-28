@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <meta charset="UTF-8">
 <title>Σενάριο – Ελαττωματικός Διακόπτης</title>
 
@@ -327,13 +329,29 @@ function check(){
   const phaseToSwitch = isConnected("tPhase","sL1") || isConnected("tPhase","sL2");
 
   if(lampToSwitch && lampToNeutral && phaseToSwitch){
-    lampImg.src = "../images/lamp_on.png";
-    msg.innerText = "✅ Σωστή συνδεσμολογία – η λάμπα λειτουργεί.";
-  } else {
+  lampImg.src = "../images/lamp_on.png";
+  msg.innerHTML = `
+    ✅ Σωστή συνδεσμολογία – η λάμπα λειτουργεί.
+    <br><br>
+    <button onclick="completeScenario()" style="
+      background:#388e3c; color:white; border:none;
+      padding:10px 20px; border-radius:6px; cursor:pointer;
+      font-size:15px; margin-top:10px;">
+      ✅ Ολοκλήρωση Σεναρίου
+    </button>
+  `;
+} else {
     lampImg.src = "../images/lamp_off.png";
     msg.innerText = "❌ Λάθος ή ελλιπής συνδεσμολογία.";
   }
   document.getElementById("whyBtn").style.display="inline-block";
+}
+
+function completeScenario() {
+  if(typeof completeHomeworkStep === "function") {
+    completeHomeworkStep("scenario_switch-fault");
+  }
+  setTimeout(() => { window.location.href = "scenarios.html"; }, 1500);
 }
 
 function toggleTheory(){
