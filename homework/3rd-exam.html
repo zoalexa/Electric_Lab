@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <meta charset="UTF-8">
 <title>Quiz Ενότητα 3 – Συνδεσμολογίες στην Οικιακή Ηλεκτρολογία</title>
 
@@ -121,6 +123,10 @@ button{
   border:2px solid #e74c3c !important;
   background:#fdecea !important;
 }
+
+#finalSubmitBtn{
+  display:none;
+}
 </style>
 </head>
 
@@ -131,7 +137,6 @@ button{
   <div id="timer">⏱ 0 δευτερόλεπτα</div>
 </header>
 
-<!-- ✅ ΕΠΙΛΟΓΗ MODE -->
 <div id="modeSelection">
   <h2>Επιλογή Τύπου Quiz</h2>
   <button class="practice-btn" onclick="startQuiz('practice')">Practice</button>
@@ -164,7 +169,6 @@ button{
   font-size:16px;
   border:none;
   border-radius:6px;
-  display:none;
 ">
   🔒 Submit All & Finish
 </button>
@@ -174,228 +178,252 @@ button{
   <p id="finalTime"></p>
   <p id="finalScore"></p>
   <p id="finalMessage"></p>
+
+  <div id="practiceActions" style="display:none; margin-top:20px;">
+    <button onclick="goHome()" style="background:#1976d2;color:white;">
+      Ολοκλήρωση
+    </button>
+    <button onclick="showReview()" style="background:#2ecc71;color:white;">
+      📖 Έξτρα Μελέτη
+    </button>
+  </div>
 </div>
 
-<div id="practiceActions" style="display:none; margin-top:20px;">
-  <button onclick="goHome()" style="background:#1976d2;color:white;">
-    Ολοκλήρωση
-  </button>
-  <button onclick="startReview()" style="background:#2ecc71;color:white;">
-    Έξτρα Μελέτη
-  </button>
-</div>
+<!-- REVIEW CARDS -->
+<div id="reviewBox" style="display:none; max-width:900px; margin:30px auto;"></div>
 
 <script>
 
 /* ====== ΕΡΩΤΗΣΕΙΣ ====== */
-
 const questions = [
-{
-q:"Τι είναι η συνδεσμολογία αλερετούρ;",
-img:"../images/quiz3/q1.jpg",
-a:[
-"Χρήση δύο διακοπτών για τον έλεγχο μίας λάμπας",
-"Συνδεσμολογία δύο λαμπτήρων σε σειρά",
-"Συνδεσμολογία ενός διακόπτη με γείωση",
-"Χρήση ενός διακόπτη για τον έλεγχο δύο λαμπτήρων"
-],
-correct:0
-},
-{
-q:"Πόσοι αγωγοί απαιτούνται σε μια συνδεσμολογία τύπου αλερετούρ;",
-img:"../images/quiz3/q2.jpg",
-a:["2","3","4","5"],
-correct:2
-},
-{
-q:"Οι δύο ενδιάμεσοι αγωγοί στο αλερετούρ λέγονται:",
-img:"../images/quiz3/q3.jpg",
-a:["Φάσεις","Γέφυρες","Ταξιδιώτες","Ουδέτεροι"],
-correct:2
-},
-{
-q:"Αν συνδεθεί λάθος ταξιδιώτης:",
-img:"../images/quiz3/q4.jpg",
-a:[
-"Δεν λειτουργεί σωστά η εναλλαγή",
-"Ανάβει πάντα",
-"Καίγεται η λάμπα",
-"Δεν επηρεάζεται"
-],
-correct:0
-},
-{
-q:"Ο ουδέτερος της παρόχης στην συνδεσμολογία τύπου αλερετούρ:",
-img:"../images/quiz3/q5.jpg",
-a:[
-"Περνά από τους διακόπτες",
-"Πηγαίνει απευθείας στη λάμπα",
-"Συνδέεται στη γείωση",
-"Δεν χρησιμοποιείται"
-],
-correct:1
-},
-{
-q:"Σε μια λάθος συνδεσμολογία, η λάμπα μπορεί:",
-img:"../images/quiz3/q6.jpg",
-a:[
-"Να μένει μόνιμα αναμμένη",
-"Να μη σβήνει ποτέ",
-"Να μη λειτουργεί",
-"Όλα τα παραπάνω"
-],
-correct:3
-},
-{
-q:"Τι είναι κοινός ακροδέκτης;",
-img:"../images/quiz3/q7.jpg",
-a:[
-"Η γείωση",
-"Το κοινό σημείο διακόπτη",
-"Ο ουδέτερος",
-"Η ασφάλεια"
-],
-correct:1
-},
-{
-q:"Στην σειριακή συνδεσμολογία, η τάση του ρεύματος:",
-img:"../images/quiz3/q8.jpg",
-a:[
-"Μοιράζεται",
-"Παραμένει ίδια",
-"Διπλασιάζεται",
-"Μηδενίζεται"
-],
-correct:0
-},
-{
-q:"Σε παράλληλη συνδεσμολογία, η ένταση του ρεύματος:",
-img:"../images/quiz3/q9.jpg",
-a:[
-"Διαμοιράζεται στα φορτία",
-"Μηδενίζεται",
-"Παραμένει ίδια",
-"Αυξάνεται χωρίς όριο"
-],
-correct:0
-},
-{
-q:"Τι προκαλεί κακή επαφή-ένωση σε έναν ακροδέκτη (π.χ. σε μία πρίζα);",
-img:"../images/quiz3/q10.jpg",
-a:[
-"Υπερθέρμανση",
-"Μείωση αντίστασης",
-"Αύξηση τάσης",
-"Καμία επίδραση"
-],
-correct:0
-},
-{
-q:"Η γείωση πρέπει να:",
-img:"../images/quiz3/q11.jpg",
-a:[
-"Διακόπτεται",
-"Είναι συνεχής και ασφαλής",
-"Περνά από διακόπτη",
-"Συνδέεται με φάση"
-],
-correct:1
-},
-{
-q:"Η σύνδεση της φάσης σε λάθος ακροδέκτη (π.χ. σε μια πρίζα) μπορεί να προκαλέσει:",
-img:"../images/quiz3/q12.jpg",
-a:[
-"Κίνδυνο ηλεκτροπληξίας",
-"Μείωση κατανάλωσης",
-"Βελτίωση ισχύος",
-"Καμία διαφορά"
-],
-correct:0
-},
-{
-q:"Σε περίπτωση που ένα δωμάτιο δεν έχει ρεύμα τι ελέγχουμε πρώτα από όλα;",
-img:"../images/quiz3/q13.jpg",
-a:[
-"Ηλεκτρολογικό Πίνακα (Ασφάλειες)",
-"Καλοδίωση Παροχής",
-"Καλοδίωση Διακόπτη",
-"Καλοδίωση Λάμπας"
-],
-correct:0
-},
-{
-q:"Σε μια συνδεσμολογία τύπου αλερετούρ με 3 σημεία ελέγχου απαιτείται:",
-img:"../images/quiz3/q14.jpg",
-a:[
-"Ενδιάμεσος διακόπτης",
-"Ρελέ",
-"Ασφάλεια",
-"Γείωση διπλή"
-],
-correct:0
-},
-{
-q:"Μία λάθος συνδεσμολογία μεταξύ φάσης και ουδέτερου μπορεί να οδηγήσει σε:",
-img:"../images/quiz3/q15.jpg",
-a:[
-"Βραχυκύκλωμα",
-"Αύξηση ισχύος",
-"Κανονική λειτουργία",
-"Μείωση φωτεινότητας"
-],
-correct:0
-}
+  {
+    q: "Τι είναι η συνδεσμολογία αλερετούρ;",
+    img: "../images/quiz3/q1.jpg",
+    a: [
+      "Χρήση δύο διακοπτών για τον έλεγχο μίας λάμπας",
+      "Συνδεσμολογία δύο λαμπτήρων σε σειρά",
+      "Συνδεσμολογία ενός διακόπτη με γείωση",
+      "Χρήση ενός διακόπτη για τον έλεγχο δύο λαμπτήρων"
+    ],
+    correct: 0,
+    feedback: "Αλερετούρ (va-et-vient) είναι η συνδεσμολογία που επιτρέπει τον έλεγχο ενός φωτιστικού από δύο τουλάχιστον σημεία, χρησιμοποιώντας διακόπτες τύπου κομιτατέρ."
+  },
+  {
+    q: "Πόσοι αγωγοί απαιτούνται σε μια συνδεσμολογία τύπου αλερετούρ;",
+    img: "../images/quiz3/q2.jpg",
+    a: ["2", "3", "4", "5"],
+    correct: 2,
+    feedback: "Για βασικό αλερετούρ δύο σημείων απαιτούνται 4 αγωγοί: φάση, ουδέτερος και οι δύο ταξιδιώτες (γέφυρες) μεταξύ των δύο κομιτατέρ."
+  },
+  {
+    q: "Οι δύο ενδιάμεσοι αγωγοί στο αλερετούρ λέγονται:",
+    img: "../images/quiz3/q3.jpg",
+    a: ["Φάσεις", "Γέφυρες", "Ταξιδιώτες", "Ουδέτεροι"],
+    correct: 2,
+    feedback: "Οι ενδιάμεσοι αγωγοί που συνδέουν τους δύο κομιτατέρ λέγονται ταξιδιώτες (travelers). Η εναλλαγή τους καθορίζει αν θα κλείσει το κύκλωμα."
+  },
+  {
+    q: "Αν συνδεθεί λάθος ταξιδιώτης:",
+    img: "../images/quiz3/q4.jpg",
+    a: [
+      "Δεν λειτουργεί σωστά η εναλλαγή",
+      "Ανάβει πάντα",
+      "Καίγεται η λάμπα",
+      "Δεν επηρεάζεται"
+    ],
+    correct: 0,
+    feedback: "Αν οι ταξιδιώτες συνδεθούν λάθος, η λογική εναλλαγής διακόπτεται — η λάμπα μπορεί να μην ανάβει ή να μην σβήνει από κάποιο σημείο."
+  },
+  {
+    q: "Ο ουδέτερος της παρόχης στην συνδεσμολογία τύπου αλερετούρ:",
+    img: "../images/quiz3/q5.jpg",
+    a: [
+      "Περνά από τους διακόπτες",
+      "Πηγαίνει απευθείας στη λάμπα",
+      "Συνδέεται στη γείωση",
+      "Δεν χρησιμοποιείται"
+    ],
+    correct: 1,
+    feedback: "Στην αλερετούρ ο ουδέτερος δεν περνά από τους διακόπτες — πηγαίνει κατευθείαν στη λάμπα. Μόνο η φάση διέρχεται μέσω των κομιτατέρ."
+  },
+  {
+    q: "Σε μια λάθος συνδεσμολογία, η λάμπα μπορεί:",
+    img: "../images/quiz3/q6.jpg",
+    a: [
+      "Να μένει μόνιμα αναμμένη",
+      "Να μη σβήνει ποτέ",
+      "Να μη λειτουργεί",
+      "Όλα τα παραπάνω"
+    ],
+    correct: 3,
+    feedback: "Λανθασμένη συνδεσμολογία μπορεί να οδηγήσει σε οποιαδήποτε από αυτές τις καταστάσεις, ανάλογα με το είδος του σφάλματος στη σύνδεση."
+  },
+  {
+    q: "Τι είναι κοινός ακροδέκτης;",
+    img: "../images/quiz3/q7.jpg",
+    a: [
+      "Η γείωση",
+      "Το κοινό σημείο διακόπτη",
+      "Ο ουδέτερος",
+      "Η ασφάλεια"
+    ],
+    correct: 1,
+    feedback: "Ο κοινός ακροδέκτης (common) είναι το κεντρικό σημείο του κομιτατέρ που συνδέεται εναλλακτικά με τον έναν ή τον άλλον ταξιδιώτη."
+  },
+  {
+    q: "Στην σειριακή συνδεσμολογία, η τάση του ρεύματος:",
+    img: "../images/quiz3/q8.jpg",
+    a: [
+      "Μοιράζεται",
+      "Παραμένει ίδια",
+      "Διπλασιάζεται",
+      "Μηδενίζεται"
+    ],
+    correct: 0,
+    feedback: "Σε σειριακή σύνδεση η συνολική τάση μοιράζεται αναλογικά στα επιμέρους φορτία, ανάλογα με την αντίσταση του καθενός."
+  },
+  {
+    q: "Σε παράλληλη συνδεσμολογία, η ένταση του ρεύματος:",
+    img: "../images/quiz3/q9.jpg",
+    a: [
+      "Διαμοιράζεται στα φορτία",
+      "Μηδενίζεται",
+      "Παραμένει ίδια",
+      "Αυξάνεται χωρίς όριο"
+    ],
+    correct: 0,
+    feedback: "Σε παράλληλη σύνδεση η τάση είναι κοινή, αλλά η ένταση μοιράζεται στα φορτία ανάλογα με την αντίσταση του καθενός."
+  },
+  {
+    q: "Τι προκαλεί κακή επαφή-ένωση σε έναν ακροδέκτη (π.χ. σε μία πρίζα);",
+    img: "../images/quiz3/q10.jpg",
+    a: [
+      "Υπερθέρμανση",
+      "Μείωση αντίστασης",
+      "Αύξηση τάσης",
+      "Καμία επίδραση"
+    ],
+    correct: 0,
+    feedback: "Η κακή επαφή δημιουργεί τοπική αύξηση αντίστασης. Αυτό προκαλεί υπερθέρμανση (P = I² × R) που μπορεί να οδηγήσει σε πυρκαγιά."
+  },
+  {
+    q: "Η γείωση πρέπει να:",
+    img: "../images/quiz3/q11.jpg",
+    a: [
+      "Διακόπτεται",
+      "Είναι συνεχής και ασφαλής",
+      "Περνά από διακόπτη",
+      "Συνδέεται με φάση"
+    ],
+    correct: 1,
+    feedback: "Η γείωση πρέπει να είναι πάντα συνεχής και χωρίς διακοπή — ποτέ δεν τοποθετείται διακόπτης στον αγωγό γείωσης."
+  },
+  {
+    q: "Η σύνδεση της φάσης σε λάθος ακροδέκτη (π.χ. σε μια πρίζα) μπορεί να προκαλέσει:",
+    img: "../images/quiz3/q12.jpg",
+    a: [
+      "Κίνδυνο ηλεκτροπληξίας",
+      "Μείωση κατανάλωσης",
+      "Βελτίωση ισχύος",
+      "Καμία διαφορά"
+    ],
+    correct: 0,
+    feedback: "Αν η φάση συνδεθεί στον ακροδέκτη γείωσης, το περίβλημα της συσκευής τίθεται σε τάση — άμεσος κίνδυνος ηλεκτροπληξίας για τον χρήστη."
+  },
+  {
+    q: "Σε περίπτωση που ένα δωμάτιο δεν έχει ρεύμα τι ελέγχουμε πρώτα από όλα;",
+    img: "../images/quiz3/q13.jpg",
+    a: [
+      "Ηλεκτρολογικό Πίνακα (Ασφάλειες)",
+      "Καλοδίωση Παροχής",
+      "Καλοδίωση Διακόπτη",
+      "Καλοδίωση Λάμπας"
+    ],
+    correct: 0,
+    feedback: "Πρώτη ενέργεια είναι ο έλεγχος του πίνακα — αν έχει πέσει κάποια ασφάλεια. Είναι το πιο συνηθισμένο αίτιο και το πιο εύκολο να ελεγχθεί."
+  },
+  {
+    q: "Σε μια συνδεσμολογία τύπου αλερετούρ με 3 σημεία ελέγχου απαιτείται:",
+    img: "../images/quiz3/q14.jpg",
+    a: [
+      "Ενδιάμεσος διακόπτης",
+      "Ρελέ",
+      "Ασφάλεια",
+      "Γείωση διπλή"
+    ],
+    correct: 0,
+    feedback: "Για έλεγχο από 3 σημεία χρειάζεται ένας ενδιάμεσος διακόπτης (intermediate switch) που τοποθετείται μεταξύ των δύο κομιτατέρ."
+  },
+  {
+    q: "Μία λάθος συνδεσμολογία μεταξύ φάσης και ουδέτερου μπορεί να οδηγήσει σε:",
+    img: "../images/quiz3/q15.jpg",
+    a: [
+      "Βραχυκύκλωμα",
+      "Αύξηση ισχύος",
+      "Κανονική λειτουργία",
+      "Μείωση φωτεινότητας"
+    ],
+    correct: 0,
+    feedback: "Η άμεση σύνδεση φάσης με ουδέτερο χωρίς φορτίο ισοδυναμεί με βραχυκύκλωμα — το ρεύμα εκτοξεύεται, η ασφάλεια πέφτει ή γίνεται ζημιά."
+  }
 ];
 
-
 /* ====== ΜΕΤΑΒΛΗΤΕΣ ====== */
-let currentQuestion=0;
-let answers=[];
-let skipped=[];
-let score=0;
+let currentQuestion = 0;
+let answers = [];
+let skipped = [];
+let score = 0;
 let startTime;
 let timerInterval;
-let mode=null;
-let quizQuestions=[];
+let mode = null;
+let quizQuestions = [];
 let evaluated = [];
 let reviewMode = false;
 let timeLeft = 900;
 
 /* ====== SHUFFLE ====== */
 function shuffleArray(array){
-  const arr=[...array];
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+  const arr = [...array];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
 }
 
+/* ====== FINAL SUBMIT ====== */
+function finalSubmit(){
+  if(answers.includes(null)){
+    alert("Υπάρχουν αναπάντητες ερωτήσεις!");
+    return;
+  }
+  const confirmSubmit = confirm("Η τελική υποβολή θα κλειδώσει τις απαντήσεις σου και θα βαθμολογηθούν ΜΟΝΟ αυτές. Συνεχίζεις;");
+  if(!confirmSubmit) return;
+
+  document.querySelectorAll("input, select, button").forEach(el => {
+    el.disabled = true;
+  });
+
+  finishQuiz();
+}
+
 /* ====== START QUIZ ====== */
 function startQuiz(selectedMode){
-
   mode = selectedMode;
-
   document.getElementById("modeSelection").style.display = "none";
   document.getElementById("quizBox").style.display = "block";
 
   if(mode === "exam"){
-
     document.getElementById("finalSubmitBtn").style.display = "block";
 
-    // shuffle ερωτήσεων + απαντήσεων
     quizQuestions = shuffleArray(questions).map(q => {
-
       const answersWithIndex = q.a.map((text, index) => ({
         text,
         isCorrect: index === q.correct
       }));
-
       const shuffledAnswers = shuffleArray(answersWithIndex);
-
       return {
-        q: q.q,
-        img: q.img,
+        ...q,
         a: shuffledAnswers.map(x => x.text),
         correct: shuffledAnswers.findIndex(x => x.isCorrect)
       };
@@ -404,10 +432,8 @@ function startQuiz(selectedMode){
     timeLeft = 900;
     startTimer();
 
-  }else{
-
+  } else {
     document.getElementById("finalSubmitBtn").style.display = "none";
-
     quizQuestions = [...questions];
     document.getElementById("timer").innerText = "";
   }
@@ -415,7 +441,6 @@ function startQuiz(selectedMode){
   answers = new Array(quizQuestions.length).fill(null);
   skipped = new Array(quizQuestions.length).fill(false);
   evaluated = new Array(quizQuestions.length).fill(false);
-
   currentQuestion = 0;
   score = 0;
   startTime = Date.now();
@@ -425,56 +450,43 @@ function startQuiz(selectedMode){
 
 /* ====== TIMER ====== */
 function formatTime(sec){
-  const m=Math.floor(sec/60);
-  const s=sec%60;
-  if(m===0) return s+" δευτερόλεπτα";
-  return m+" λεπτά και "+s+" δευτερόλεπτα";
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  if(m === 0) return s + " δευτερόλεπτα";
+  return m + " λεπτά και " + s + " δευτερόλεπτα";
 }
 
 function startTimer(){
-  if (timerInterval) clearInterval(timerInterval);
-
-  timerInterval = setInterval(()=>{
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
     const m = Math.floor(timeLeft / 60);
     const s = timeLeft % 60;
-
-    document.getElementById("timer").innerText =
-      `⏱ ${m}:${s < 10 ? "0"+s : s}`;
-
+    document.getElementById("timer").innerText = `⏱ ${m}:${s < 10 ? "0" + s : s}`;
     timeLeft--;
-
     if(timeLeft < 0){
       clearInterval(timerInterval);
       finishQuiz();
     }
-
-  },1000);
+  }, 1000);
 }
 
 /* ====== LOAD QUESTION ====== */
 function loadQuestion(){
-  const q=quizQuestions[currentQuestion];
+  const q = quizQuestions[currentQuestion];
+  document.getElementById("questionCounter").innerText =
+    `Ερώτηση ${currentQuestion + 1} / ${quizQuestions.length}`;
+  document.getElementById("questionText").innerText = q.q;
+  document.getElementById("questionImage").src = q.img;
 
-  document.getElementById("questionCounter").innerText=
-    `Ερώτηση ${currentQuestion+1} / ${quizQuestions.length}`;
+  const box = document.getElementById("answersBox");
+  box.innerHTML = "";
 
-  document.getElementById("questionText").innerText=q.q;
-  document.getElementById("questionImage").src=q.img;
-
-  const box=document.getElementById("answersBox");
-  box.innerHTML="";
-
-  q.a.forEach((opt,i)=>{
-  const label=document.createElement("label");
-  const isDisabled = (mode === "practice" && answers[currentQuestion] !== null) ? "disabled" : "";
-  const isChecked = answers[currentQuestion] === i ? "checked" : "";
-
-  label.innerHTML = `
-    <input type="radio" name="answer" value="${i}" ${isChecked} ${isDisabled}>
-    ${opt}
-  `;
-  box.appendChild(label);
-});
+  q.a.forEach((opt, i) => {
+    const label = document.createElement("label");
+    const isChecked = answers[currentQuestion] === i ? "checked" : "";
+    label.innerHTML = `<input type="radio" name="answer" value="${i}" ${isChecked}> ${opt}`;
+    box.appendChild(label);
+  });
 
   updateProgress();
   renderNavigation();
@@ -482,41 +494,35 @@ function loadQuestion(){
 
 /* ====== PROGRESS ====== */
 function updateProgress(){
-  const answeredCount=answers.filter(a=>a!==null).length;
-  const percent=(answeredCount/quizQuestions.length)*100;
-  document.getElementById("progressBar").style.width=percent+"%";
+  const answeredCount = answers.filter(a => a !== null).length;
+  const percent = (answeredCount / quizQuestions.length) * 100;
+  document.getElementById("progressBar").style.width = percent + "%";
 }
 
 /* ====== SUBMIT ====== */
 function submitAnswer(){
-
   const selected = document.querySelector('input[name="answer"]:checked');
   if(!selected) return alert("Επίλεξε απάντηση!");
 
   const value = parseInt(selected.value);
   const correctIndex = quizQuestions[currentQuestion].correct;
-
   let correct = true;
-  // reset styles
-  document.querySelectorAll(".answers label").forEach(l=>{
-    l.classList.remove("correct","wrong");
+
+  document.querySelectorAll(".answers label").forEach(l => {
+    l.classList.remove("correct", "wrong");
   });
 
   answers[currentQuestion] = value;
 
   if(mode === "practice"){
-
     const labels = document.querySelectorAll(".answers label");
-
-    labels.forEach((lab,i)=>{
+    labels.forEach((lab, i) => {
       if(i === correctIndex) lab.classList.add("correct");
-
       if(i === value && i !== correctIndex){
         lab.classList.add("wrong");
         correct = false;
       }
     });
-    // ❗ δεν προχωράει αν είναι λάθος
     if(!correct) return;
   }
 
@@ -525,156 +531,176 @@ function submitAnswer(){
 
 /* ====== SKIP ====== */
 function skipQuestion(){
-  if(answers[currentQuestion]===null)
-    skipped[currentQuestion]=true;
-
+  if(answers[currentQuestion] === null) skipped[currentQuestion] = true;
   nextStep();
 }
 
 /* ====== ΡΟΗ ====== */
 function nextStep(){
+  const nextUnanswered = answers.findIndex((a, i) => a === null && i > currentQuestion);
+  if(nextUnanswered !== -1){ currentQuestion = nextUnanswered; loadQuestion(); return; }
 
-  const nextUnanswered = answers.findIndex((a,i)=>a===null && i>currentQuestion);
-
-  if(nextUnanswered !== -1){
-    currentQuestion = nextUnanswered;
-    loadQuestion();
-    return;
-  }
-
-  const anyUnanswered = answers.findIndex(a=>a===null);
-
-  if(anyUnanswered !== -1){
-    currentQuestion = anyUnanswered;
-    loadQuestion();
-    return;
-  }
+  const anyUnanswered = answers.findIndex(a => a === null);
+  if(anyUnanswered !== -1){ currentQuestion = anyUnanswered; loadQuestion(); return; }
 
   attemptFinish();
 }
 
-/* ====== ΤΕΛΙΚΗ ΥΠΟΒΟΛΗ ====== */
-function attemptFinish() {
-
-  if (mode === "practice") {
+function attemptFinish(){
+  if(mode === "practice"){
+    finishQuiz();
+    return;
+  }
+  if(answers.includes(null)){
+    alert("Υπάρχουν αναπάντητες ερωτήσεις.");
+    return;
+  }
+  const choice = confirm("Πάτα ΟΚ για τελική υποβολή ή Άκυρο για επεξεργασία.");
+  if(choice){
     finishQuiz();
   } else {
-    if (answers.includes(null)) {
-      alert("Υπάρχουν αναπάντητες ερωτήσεις.");
-    } else if (confirm("Θέλεις να ολοκληρώσεις;")) {
-      finishQuiz();
-    }
+    const firstAnswered = answers.findIndex(a => a !== null);
+    currentQuestion = firstAnswered !== -1 ? firstAnswered : 0;
+    loadQuestion();
   }
+}
+
+/* ====== SCORE ====== */
+function calculateFinalScore(){
+  let totalScore = 0;
+  quizQuestions.forEach((q, i) => {
+    if(answers[i] === q.correct) totalScore++;
+  });
+  return totalScore;
 }
 
 /* ====== FINISH ====== */
 function finishQuiz(){
-
   clearInterval(timerInterval);
-
-  document.getElementById("quizBox").style.display="none";
-  document.getElementById("resultBox").style.display="block";
+  document.getElementById("quizBox").style.display = "none";
+  document.getElementById("resultBox").style.display = "block";
   document.getElementById("finalSubmitBtn").style.display = "none";
 
   const msg = document.getElementById("finalMessage");
+  let percent = 0;
 
   if(mode === "exam"){
+    const finalScoreValue = calculateFinalScore();
+    percent = (finalScoreValue / quizQuestions.length) * 100;
 
-    let totalScore = 0;
+    const total = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("finalTime").innerText = "Συνολικός χρόνος: " + formatTime(total);
+    document.getElementById("finalScore").innerText = `Βαθμολογία: ${percent.toFixed(2)}%`;
 
-    quizQuestions.forEach((q,i)=>{
-      if(answers[i] === q.correct){
-        totalScore++;
-      }
-    });
+    if(percent === 100){
+      if(typeof completeHomeworkStep === "function") completeHomeworkStep("quiz3");
+      setTimeout(() => { window.location.href = "quiz.html"; }, 3500);
+      return;
+    }
 
-    let percent = (totalScore / quizQuestions.length) * 100;
-
-    const total = Math.floor((Date.now()-startTime)/1000);
-
-    document.getElementById("finalTime").innerText =
-      "Συνολικός χρόνος: " + formatTime(total);
-
-    document.getElementById("finalScore").innerText =
-      `Βαθμολογία: ${percent.toFixed(2)}%`;
-
-    if(percent>=85)
-      msg.innerText="🎉 Εξαιρετική επίδοση! Συνέχισε έτσι.";
-    else if(percent>=60)
-      msg.innerText="👍 Καλή προσπάθεια!";
-    else
-      msg.innerText="📘 Χρειάζεσαι επανάληψη.";
-
-  }else{
-
+  } else {
     document.getElementById("finalTime").innerText = "";
     document.getElementById("finalScore").innerText = "";
+  }
 
+  if(percent >= 85)
+    msg.innerText = "🎉 Εξαιρετική επίδοση! Συνέχισε έτσι.";
+  else if(percent >= 60)
+    msg.innerText = "👍 Καλή προσπάθεια! Λίγη επανάληψη θα σε βελτιώσει.";
+  else
+    msg.innerText = "📘 Χρειάζεσαι επανάληψη στην θεωρία.";
+
+  if(mode === "exam"){
+    let countdown = 5;
+    const baseMessage = msg.innerText;
+    const countdownInterval = setInterval(() => {
+      msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στα Quiz σε ${countdown}...`;
+      countdown--;
+      if(countdown < 0){ clearInterval(countdownInterval); goHome(); }
+    }, 1000);
+  }
+
+  if(mode === "practice"){
     msg.innerText = "🎓 Ολοκλήρωσες την εξάσκηση!";
     document.getElementById("practiceActions").style.display = "block";
   }
-
-  // countdown μόνο στο exam
-  if(mode === "exam"){
-
-    let countdown = 5;
-    const baseMessage = msg.innerText;
-
-    const countdownInterval = setInterval(()=>{
-
-      msg.innerText = baseMessage + `\n\n⏳ Επιστροφή στην αρχική σε ${countdown}...`;
-      countdown--;
-
-      if(countdown < 0){
-        clearInterval(countdownInterval);
-        goHome();
-      }
-
-    },1000);
-  }
-}
-
-
-function finalSubmit(){
-  if(answers.includes(null)){
-    alert("Υπάρχουν αναπάντητες ερωτήσεις!");
-    return;
-  }
-
-  if(confirm("Θέλεις οριστική υποβολή;")){
-    finishQuiz();
-  }
-}
-
-function goHome(){
-  window.location.href = "../index.html";
-}
-
-function startReview(){
-  reviewMode = true;
-  currentQuestion = 0;
-
-  document.getElementById("resultBox").style.display="none";
-  document.getElementById("quizBox").style.display="block";
-
-  loadQuestion();
 }
 
 /* ====== NAV ====== */
 function renderNavigation(){
-  const nav=document.getElementById("navigation");
-  nav.innerHTML="";
-  quizQuestions.forEach((_,i)=>{
-    const btn=document.createElement("button");
-    btn.innerText=i+1;
-
-    if(i===currentQuestion) btn.classList.add("current");
-    else if(answers[i]!==null) btn.classList.add("answered");
+  const nav = document.getElementById("navigation");
+  nav.innerHTML = "";
+  quizQuestions.forEach((_, i) => {
+    const btn = document.createElement("button");
+    btn.innerText = i + 1;
+    if(i === currentQuestion) btn.classList.add("current");
+    else if(answers[i] !== null) btn.classList.add("answered");
     else if(skipped[i]) btn.classList.add("skipped");
-
-    btn.onclick=()=>{currentQuestion=i;loadQuestion();}
+    btn.onclick = () => { currentQuestion = i; loadQuestion(); };
     nav.appendChild(btn);
   });
+}
+
+function goHome(){
+  window.location.href = "quiz.html";
+}
+
+/* ====== REVIEW ====== */
+function showReview(){
+  document.getElementById("resultBox").style.display = "none";
+  const box = document.getElementById("reviewBox");
+  box.style.display = "block";
+  box.innerHTML = "<h2 style='text-align:center'>📖 Επισκόπηση Ερωτήσεων</h2>";
+
+  quizQuestions.forEach((q, index) => {
+    const ans = answers[index];
+    const card = document.createElement("div");
+    card.style.cssText = `
+      background: white; border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 20px; margin-bottom: 20px;
+      border-left: 5px solid #1976d2;
+    `;
+
+    const answerHTML = q.a.map((opt, i) => {
+      const isCorrect = i === q.correct;
+      const isSelected = ans === i;
+      let bg = "#f1f1f1";
+      if(isCorrect) bg = "#eafaf1";
+      if(isSelected && !isCorrect) bg = "#fdecea";
+      return `
+        <div style="padding:8px 12px;margin:4px 0;border-radius:6px;
+          background:${bg};
+          border:1px solid ${isCorrect ? '#2ecc71' : isSelected ? '#e74c3c' : '#ddd'};
+          font-size:14px;">
+          ${isCorrect ? '✅' : isSelected ? '❌' : '⬜'} ${opt}
+        </div>`;
+    }).join("");
+
+    const feedbackHTML = q.feedback ? `
+      <div style="margin-top:14px;padding:12px;background:#f0f7ff;
+        border-radius:6px;font-size:13px;border-left:3px solid #1976d2;">
+        <b>💡 Εξήγηση:</b> ${q.feedback}
+      </div>` : "";
+
+    card.innerHTML = `
+      <div style="font-size:13px;color:#888;margin-bottom:6px;">Ερώτηση ${index + 1}</div>
+      <div style="font-weight:bold;margin-bottom:12px;font-size:15px;">${q.q}</div>
+      ${answerHTML}
+      ${feedbackHTML}
+    `;
+    box.appendChild(card);
+  });
+
+  const backBtn = document.createElement("button");
+  backBtn.textContent = "↩️ Επιστροφή στα Quiz";
+  backBtn.style.cssText = `
+    display:block;margin:20px auto;padding:12px 24px;
+    background:#1976d2;color:white;border:none;
+    border-radius:6px;cursor:pointer;font-size:15px;
+  `;
+  backBtn.onclick = goHome;
+  box.appendChild(backBtn);
 }
 
 </script>
