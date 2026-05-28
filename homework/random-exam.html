@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
 <meta charset="UTF-8">
 <title>Τυχαίο Quiz – Οικιακή Ηλεκτρολογία</title>
 
@@ -1071,6 +1073,12 @@ function finishQuiz(){
     });
 
     let percent=(totalScore/quizQuestions.length)*100;
+
+    if (percent === 100) {
+      if (typeof completeHomeworkStep === "function") {
+        completeHomeworkStep("quiz5");
+      }
+    }
 
     const total=Math.floor((Date.now()-startTime)/1000);
 
