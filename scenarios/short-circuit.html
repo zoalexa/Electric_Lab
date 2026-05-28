@@ -1,71 +1,108 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Σενάριο – Βραχυκύκλωμα(Under Construction)</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #eef2f6;
-  margin:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  text-align:center;
-}
-header {
-  background:#1e3a5f;
-  color:white;
-  width:100%;
-  padding:20px;
-  box-sizing:border-box;
-}
-main {
-  margin-top:40px;
-}
-h1 {
-  font-size:36px;
-  color:#1e3a5f;
-  margin-bottom:20px;
-}
-p {
-  font-size:20px;
-  color:#333;
-}
-.under-construction {
-  width:150px;
-  height:150px;
-  border:5px dashed #1e3a5f;
-  border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-weight:bold;
-  color:#1e3a5f;
-  margin:20px auto;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-  0% {transform: scale(1); opacity:1;}
-  50% {transform: scale(1.1); opacity:0.7;}
-  100% {transform: scale(1); opacity:1;}
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Σενάριο – Βραχυκύκλωμα</title>
+  <script src="../learningFlow.js"></script>
+  <script src="../auth.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f7fa; padding:30px; text-align:center; }
+    .panel { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1); max-width:500px; margin:30px auto; }
+    .wires { display:flex; justify-content:center; gap:40px; margin:20px 0; }
+    .wire-display { width:20px; height:100px; border-radius:6px; cursor:pointer; transition:0.3s; }
+    .phase-wire { background:red; }
+    .neutral-wire { background:blue; }
+    .wire-display.short { box-shadow:0 0 20px 5px orange; animation:shortAnim 0.5s infinite; }
+    @keyframes shortAnim { 0%{opacity:1} 50%{opacity:0.4} 100%{opacity:1} }
+    button { margin-top:10px; padding:8px 15px; cursor:pointer; border:none; border-radius:5px; background:#1e90ff; color:white; font-weight:bold; margin:5px; }
+    .message { margin-top:20px; font-weight:bold; }
+    .correct { color:green; }
+    .info { background:#fff; padding:20px; margin-top:30px; border-left:5px solid #d32f2f; border-radius:5px; max-width:700px; margin-left:auto; margin-right:auto; text-align:left; }
+    .top-nav { display:flex; justify-content:space-between; margin-bottom:20px; }
+    .top-nav button { padding:8px 16px; border-radius:6px; font-size:14px; }
+  </style>
 </head>
 <body>
+<div class="top-nav">
+  <button onclick="goHome()">🏠 Αρχική</button>
+  <button onclick="goScenarios()">🔙 Σενάρια</button>
+</div>
+<h1>Σενάριο – Βραχυκύκλωμα Κυκλώματος</h1>
+<p>Κατά την ενεργοποίηση του φωτισμού η ασφάλεια πέφτει άμεσα. Εντοπίστε την επαφή φάσης με ουδέτερο.</p>
 
-<header>
-<h2>Σενάριο – Βραχυκύκλωμα</h2>
-</header>
+<div class="panel">
+  <h3>Κύκλωμα Φωτισμού</h3>
+  <div class="wires">
+    <div>
+      <p>Φάση (L)</p>
+      <div class="wire-display phase-wire short" id="phaseWire"></div>
+    </div>
+    <div>
+      <p>Ουδέτερος (N)</p>
+      <div class="wire-display neutral-wire short" id="neutralWire"></div>
+    </div>
+  </div>
+  <p id="faultStatus" style="color:red; font-weight:bold;">⚠️ Εντοπίστηκε επαφή φάσης – ουδετέρου!</p>
+  <button onclick="isolateFault()">🔧 Απομόνωση Βλάβης</button>
+  <button onclick="resetCircuit()" id="resetBtn" style="display:none; background:#388e3c;">
+    ✅ Επαναφορά Κυκλώματος
+  </button>
+</div>
 
-<main>
-  <div class="under-construction">🚧</div>
-  <h1>Under Construction</h1>
-  <p>Η σελίδα είναι υπό κατασκευή.<br>Το σενάριο θα είναι διαθέσιμο σύντομα.</p>
-</main>
+<div id="message" class="message"></div>
 
+<div class="info">
+  <h3>Τι συμβαίνει εδώ;</h3>
+  <p>Βραχυκύκλωμα συμβαίνει όταν η φάση (L) έρθει σε άμεση επαφή με τον ουδέτερο (N) χωρίς αντίσταση. Αυτό προκαλεί απότομη αύξηση ρεύματος που ρίχνει την ασφάλεια.</p>
+  <p>Η λύση είναι να εντοπιστεί το σημείο επαφής, να απομονωθεί η βλάβη και να επισκευαστεί η μόνωση του καλωδίου.</p>
+</div>
+
+<script>
+let isolated = false;
+
+function isolateFault() {
+  isolated = true;
+  document.getElementById("phaseWire").classList.remove("short");
+  document.getElementById("neutralWire").classList.remove("short");
+  document.getElementById("faultStatus").innerHTML = 
+    "🔧 Η βλάβη απομονώθηκε. Το κύκλωμα μπορεί να επανέλθει.";
+  document.getElementById("faultStatus").style.color = "orange";
+  document.getElementById("resetBtn").style.display = "inline-block";
+  document.getElementById("message").innerText = 
+    "✔️ Η φθαρμένη μόνωση εντοπίστηκε και απομονώθηκε.";
+}
+
+function resetCircuit() {
+  if(!isolated) { 
+    document.getElementById("message").innerText = "⚠️ Απομονώστε πρώτα τη βλάβη!"; 
+    return; 
+  }
+  document.getElementById("faultStatus").innerHTML = 
+    "✅ Το κύκλωμα επανήλθε σε κανονική λειτουργία.";
+  document.getElementById("faultStatus").style.color = "green";
+  document.getElementById("message").innerHTML = `
+    ✅ Το βραχυκύκλωμα αποκαταστάθηκε. Το κύκλωμα λειτουργεί κανονικά.
+    <br><br>
+    <button onclick="completeScenario()" style="
+      background:#388e3c; color:white; border:none;
+      padding:10px 20px; border-radius:6px; cursor:pointer;
+      font-size:15px; margin-top:10px;">
+      ✅ Ολοκλήρωση Σεναρίου
+    </button>
+  `;
+  document.getElementById("message").className = "message correct";
+}
+
+function completeScenario() {
+  if(typeof completeHomeworkStep === "function") {
+    completeHomeworkStep("scenario_short-circuit");
+  }
+  setTimeout(() => { window.location.href = "scenarios.html"; }, 1500);
+}
+
+function goHome() { window.location.href = "../index.html"; }
+function goScenarios() { window.location.href = "scenarios.html"; }
+</script>
 </body>
 </html>
