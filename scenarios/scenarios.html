@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
+<script src="../learningFlow.js"></script>
+<script src="../auth.js"></script>
   <meta charset="UTF-8">
   <title>Σενάρια Προσομοίωσης</title>
 
@@ -329,22 +331,71 @@
 
 
 <script>
-  function openScenario(file) {
-    window.location.href=file;
+const SCENARIO_KEYS = [
+  { key: "scenario_burned-lamp",       file: "burned-lamp.html" },
+  { key: "scenario_wiring-fault",      file: "wiring-fault.html" },
+  { key: "scenario_weak-lamp",         file: "weak-lamp.html" },
+  { key: "scenario_switch-fault",      file: "switch-fault.html" },
+  { key: "scenario_socket",            file: "socket.html" },
+  { key: "scenario_breaker-trip",      file: "breaker-trip.html" },
+  { key: "scenario_short-circuit",     file: "short-circuit.html" },
+  { key: "scenario_ground-fault",      file: "ground-fault.html" },
+  { key: "scenario_overheated-socket", file: "overheated-socket.html" }
+];
+
+function openScenario(file) {
+  const progress = loadHomeworkProgress();
+  const scenario = SCENARIO_KEYS.find(s => s.file === file);
+  if (!scenario) return;
+  if (!progress.unlocked[scenario.key]) {
+    showToast("🔒 Αυτό το σενάριο είναι κλειδωμένο!");
+    return;
   }
+  window.location.href = file;
+}
 
-  const viewBtn = document.getElementById("viewBtn");
-  const container = document.getElementById("scenariosContainer");
+function applyScenarioLocks() {
+  const progress = loadHomeworkProgress();
+  document.querySelectorAll(".scenario-card").forEach((card, i) => {
+    if (i >= SCENARIO_KEYS.length) return;
+    const key = SCENARIO_KEYS[i].key;
+    const unlocked = progress.unlocked[key] === true;
+    const completed = progress.completed[key] === true;
+    const btn = card.querySelector("button");
 
-  viewBtn.addEventListener("click", function () {
-    container.classList.toggle("list-view");
-
-    if (container.classList.contains("list-view")) {
-      viewBtn.textContent = "Grid View";
+    if (!unlocked) {
+      card.style.opacity = "0.4";
+      card.style.filter = "grayscale(1)";
+      card.style.position = "relative";
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "🔒 Κλειδωμένο";
+        btn.style.cursor = "not-allowed";
+        btn.style.background = "#999";
+      }
     } else {
-      viewBtn.textContent = "List View";
+      card.style.opacity = "";
+      card.style.filter = "";
+      if (btn) {
+        btn.disabled = false;
+        btn.style.cursor = "";
+        btn.style.background = "";
+        btn.textContent = completed ? "✅ Ολοκληρωμένο" : "Εκκίνηση Σεναρίου";
+      }
     }
   });
+}
+
+applyScenarioLocks();
+window.addEventListener("homeworkUpdated", applyScenarioLocks);
+
+const viewBtn = document.getElementById("viewBtn");
+const container = document.getElementById("scenariosContainer");
+viewBtn.addEventListener("click", function () {
+  container.classList.toggle("list-view");
+  viewBtn.textContent = container.classList.contains("list-view")
+    ? "Grid View" : "List View";
+});
 </script>
 
 </body>
