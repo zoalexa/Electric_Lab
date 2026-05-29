@@ -13,6 +13,18 @@ function getUserId() {
 }
 
 // =========================
+// ADMIN CHECK
+// =========================
+function isAdminUser() {
+  try {
+    const raw = localStorage.getItem("currentUser");
+    if (!raw) return false;
+    const user = JSON.parse(raw);
+    return user?.role === "admin";
+  } catch { return false; }
+}
+
+// =========================
 // TOAST NOTIFICATION
 // =========================
 function showToast(message) {
@@ -92,6 +104,14 @@ function safeParse(key) {
 }
 
 function loadProgress() {
+  // Admin: όλα ξεκλειδωμένα
+  if (isAdminUser()) {
+    const full = createDefaultProgress();
+    Object.keys(full.unlocked).forEach(k => full.unlocked[k] = true);
+    full.glossaryVisited = true;
+    Object.keys(full.videos).forEach(k => full.videos[k] = true);
+    return full;
+  }
   const id = getUserId();
   try {
     const saved = safeParse(`progress_${id}`);
@@ -202,6 +222,15 @@ window.markVideoCompleted = (id) => {
 // APPLY LOCKS (index.html)
 // =========================
 function applyLocks() {
+// Admin: πρόσβαση παντού
+if (isAdminUser()) {
+    ["btnGlos","btnVideos","btnHomework","btnForum","btnMaterial"].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) unlockBtn(btn);
+    });
+    return;
+  }
+
   const mode = localStorage.getItem("mode");
 
   const btnGlos     = document.getElementById("btnGlos");
@@ -333,6 +362,12 @@ function createDefaultHomeworkProgress() {
 }
 
 function loadHomeworkProgress() {
+  // Admin: όλα ξεκλειδωμένα
+  if (isAdminUser()) {
+    const full = createDefaultHomeworkProgress();
+    Object.keys(full.unlocked).forEach(k => full.unlocked[k] = true);
+    return full;
+  }
   const id = getUserId();
   if (id === "guest") return createDefaultHomeworkProgress();
   try {
