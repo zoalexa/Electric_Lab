@@ -165,6 +165,35 @@
   <button id="viewBtn">Grid View</button>
 </div>
 
+<!-- HOMEWORK PROGRESS BAR -->
+<div id="hwProgressWrap" style="
+  display:none;
+  background:#e0e7ef;
+  height:10px;
+  width:100%;
+  max-width:1100px;
+  margin:0 auto 6px auto;
+  border-radius:6px;
+  overflow:hidden;
+">
+  <div id="hwProgressFill" style="
+    height:10px;
+    width:0%;
+    background:linear-gradient(90deg,#1976d2,#4ade80);
+    transition:width 0.6s ease;
+    border-radius:6px;
+  "></div>
+</div>
+<div id="hwProgressLabel" style="
+  display:none;
+  text-align:right;
+  font-size:12px;
+  color:#555;
+  max-width:1100px;
+  margin:0 auto 10px auto;
+  padding-right:4px;
+"></div>
+
 <!-- DEFAULT LIST VIEW -->
 <div class="homework-grid list-view" id="homeworkContainer">
 
@@ -267,6 +296,32 @@ function applyHomeworkLocks() {
 }
 
 applyHomeworkLocks();
+function updateHwProgress() {
+  const mode = localStorage.getItem("mode");
+  if (!mode || mode === "guest") return;
+
+  const progress = loadHomeworkProgress();
+  const steps = Object.keys(progress.completed);
+  const done = steps.filter(k => progress.completed[k] === true).length;
+  const pct = Math.round((done / steps.length) * 100);
+
+  const wrap  = document.getElementById("hwProgressWrap");
+  const fill  = document.getElementById("hwProgressFill");
+  const label = document.getElementById("hwProgressLabel");
+
+  if(wrap)  wrap.style.display  = "block";
+  if(fill)  fill.style.width    = pct + "%";
+  if(label) {
+    label.style.display = "block";
+    label.textContent   = `Πρόοδος Ασκησιολογίου: ${done}/${steps.length} (${pct}%)`;
+  }
+}
+
+updateHwProgress();
+window.addEventListener("homeworkUpdated", () => {
+  applyHomeworkLocks();
+  updateHwProgress();
+});
 window.addEventListener("homeworkUpdated", applyHomeworkLocks);
 </script>
 
