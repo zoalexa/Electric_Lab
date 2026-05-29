@@ -205,7 +205,7 @@ function updateProgressUI() {
   const nextLabel = document.getElementById("nextStepLabel");
   const nextBtn = document.getElementById("nextStepBtn");
 
-  if (!mode || mode === "guest") {
+  if (!mode || mode === "guest" || isAdminUser()) {
     if (wrap) wrap.style.display = "none";
     if (nextBox) nextBox.style.display = "none";
     return;
