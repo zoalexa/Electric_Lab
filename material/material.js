@@ -70,7 +70,6 @@ const cleanYouTubeUrl = (url) => {
   }
 };
 
-const link = cleanYouTubeUrl(el("matLink").value);
 
 // =====================
 // LOCAL STORAGE
