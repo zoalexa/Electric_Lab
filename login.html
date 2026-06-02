@@ -2,27 +2,131 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<title>Login</title>
+<title>ElectricLab – Login</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body { font-family: Arial; display:flex; justify-content:center; align-items:center; height:100vh; background:#f4f7fb; }
-.box { background:white; padding:30px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); width:300px; }
-input { width:100%; padding:10px; margin:10px 0; }
-button { width:100%; padding:10px; margin-top:5px; }
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef2f7, #dce8f7);
+  margin: 0;
+}
+
+.box {
+  background: white;
+  padding: 36px 30px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  width: 320px;
+  text-align: center;
+}
+
+.box h2 {
+  margin-bottom: 6px;
+  color: #1976d2;
+  font-size: 22px;
+}
+
+.box .subtitle {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.box input {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.box input:focus {
+  border-color: #1976d2;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 11px;
+  margin-top: 14px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-login:hover { background: #1256a0; }
+
+.btn-guest {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: transparent;
+  color: #777;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-guest:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.divider {
+  margin: 16px 0 8px 0;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.logo-area {
+  margin-bottom: 20px;
+}
+
+.logo-area h1 {
+  font-size: 28px;
+  color: #1976d2;
+  margin: 0;
+}
+
+.logo-area p {
+  font-size: 12px;
+  color: #999;
+  margin: 4px 0 0 0;
+}
 </style>
 </head>
-
 <body>
 
 <div class="box">
-<h2>Login</h2>
+  <div class="logo-area">
+    <h1>⚡ ElectricLab</h1>
+    <p>Εκπαιδευτική Πλατφόρμα Ηλεκτρολογίας</p>
+  </div>
 
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
+  <input id="username" placeholder="👤 Username" autocomplete="username">
+  <input id="password" type="password" placeholder="🔒 Password" autocomplete="current-password">
 
-<button onclick="login()">Login</button>
-<button onclick="continueAsGuest()">View as Guest</button>
+  <button class="btn-login" onclick="login()">Σύνδεση</button>
 
+  <div class="divider">ή</div>
+
+  <button class="btn-guest" onclick="continueAsGuest()">
+    👁 Συνέχεια ως Guest
+  </button>
 </div>
 
 <script src="auth.js"></script>
